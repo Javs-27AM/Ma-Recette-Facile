@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Ma Reccette Facile</title>
+    <!-- BOOTSTRAP 4  -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  </head>
+  
+  <body>
+
+    <!-- BARRA DE NAVEGACIÓN  -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <a class="navbar-brand" href=".">Ma Reccette Facile</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ml-auto"></ul>
+        <form class="form-inline my-2 my-lg-0">
+          <input class="form-control mr-sm-2" name="search" id="search" type="search" placeholder="Nombre Receta o Categoría" aria-label="Search">
+          <button class="btn btn-success my-2 my-sm-0" type="submit">Buscar</button>
+        </form>
+      </div>
+    </nav>
+
+    <div class="container">
+      <div class="row p-4">
+        <div class="col-md-5">
+          <div class="card">
+            <div class="card-body">
+              <!-- FORMULARIO PARA AGREGAR RECETA -->
+              <form id="receta-form">
+                <div class="form-group">
+                  <label for="NombreReceta">Nombre:</label>
+                  <input class="form-control" type="text" id="NombreReceta" name="NombreReceta" placeholder="Nombre de la receta" required>
+                </div>
+
+                <div class="form-group">
+                  <label for="Imagen">Seleccionar imagen:</label>
+                  <input class="form-control" type="file" id="Imagen" name="Imagen" accept="image/*" required>
+              </div>
+
+                <div class="form-group">
+                  <label for="TiempoPreparacion">Tiempo de preparación (en minutos):</label>
+                  <input class="form-control" type="number" id="TiempoPreparacion" name="TiempoPreparacion" placeholder="Ejemplo: 30" required>
+                </div>
+              <!-- 
+                <div class="form-group">
+                  <label for="ID_Usuario">ID de usuario:</label>
+                  <input class="form-control" type="number" id="ID_Usuario" name="ID_Usuario" placeholder="Ejemplo: 123456" required>
+                </div>
+              -->
+
+                <input type="hidden" id="recetaId">
+                <button class="btn btn-primary btn-block text-center" type="submit">
+                  Agregar Receta
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+         <!-- TABLA -->
+         <div class="col-md-7">
+          <div class="card my-4" id="receta-result">
+            <div class="card-body">
+              <!-- RESULTADO -->
+              <ul id="container"></ul>
+            </div>
+          </div>
+
+          <table class="table table-bordered table-sm">
+            <thead>
+              <tr>
+                <td>ID</td>
+                <td>Nombre</td>
+                <td>Descripcion</td>
+              </tr>
+            </thead>
+            <tbody id="receta"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <!-- Lógica del Frontend -->
+    <script src="app.js"></script>
+  </body>
+</html>
