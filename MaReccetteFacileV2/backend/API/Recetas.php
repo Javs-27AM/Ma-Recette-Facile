@@ -52,13 +52,13 @@ public function add($jsonOBJ) {
             'message' => 'La consulta falló'
         );
     
-        if (isset($jsonOBJ->ID_Receta)) {
+        if (isset($jsonOBJ->id)) {
             $sql = "UPDATE receta SET 
                 NombreReceta='{$jsonOBJ->NombreReceta}',
                 Imagen='{$jsonOBJ->Imagen}', 
                 TiempoPreparacion={$jsonOBJ->TiempoPreparacion},
                 FechaActualizacion=NOW()
-                WHERE ID_Receta = {$jsonOBJ->ID_Receta}";
+                WHERE ID_Receta = {$jsonOBJ->id}";
     
             if ($this->conexion->query($sql)) {
                 $this->response['status'] = "success";
@@ -72,7 +72,7 @@ public function add($jsonOBJ) {
             $this->response['message'] = 'ERROR: Falta el valor de ID_Receta en el JSON.';
         }
     
-        echo json_encode($this->response);
+        //echo json_encode($this->response);
     }
 
     // Eliminar receta basada en ID_Receta

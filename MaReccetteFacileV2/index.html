@@ -24,7 +24,20 @@
       </button>
 
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav ml-auto"></ul>
+        <ul class="navbar-nav ml-auto">
+          <!-- Ícono que despliega el submenú -->
+          <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="userMenu" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <!-- Ícono de usuario personalizado -->
+                  <img src="https://raw.githubusercontent.com/Javs-27AM/Golden-Mart/master/NetBeans/GoldenMart/src/imagenes/user.png" alt="Ícono de usuario" style="width: 30px; height: 30px;">
+              </a>
+              <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userMenu">
+                  <a class="dropdown-item" href="#">Iniciar Sesión</a>
+                  <a class="dropdown-item" href="#">Crear Cuenta</a>
+                  <a class="dropdown-item" href="#">Cerrar Sesión</a>
+              </div>
+          </li>
+      </ul>
         <form class="form-inline my-2 my-lg-0">
           <input class="form-control mr-sm-2" name="search" id="search" type="search" placeholder="Nombre Receta o Categoría" aria-label="Search">
           <button class="btn btn-success my-2 my-sm-0" type="submit">Buscar</button>

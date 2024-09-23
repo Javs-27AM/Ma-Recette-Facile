@@ -1,8 +1,9 @@
 // JSON BASE A MOSTRAR EN FORMULARIO
 var baseJSON = {
     "NombreReceta": "Receta",
-    "Imagen": "URL de la imagen",
-    "TiempoPreparacion": 0  // Valor numérico para tiempo de preparación
+    "Imagen": "",
+    "TiempoPreparacion": 0,  // Valor numérico para tiempo de preparación
+    "FechaActualizacion" :0
 };
 
 $(document).ready(function(){
@@ -118,13 +119,14 @@ $(document).ready(function(){
         e.preventDefault();
 
         let postData = {
+            id: $('#recetaId').val(), 
             NombreReceta: $('#NombreReceta').val(),  
             Imagen: $('#Imagen').val(),                
             TiempoPreparacion: $('#TiempoPreparacion').val(),
-            id: $('#recetaId').val()
+            
         };
 
-        const url = postData.id ? './backend/receta-edit.php' : './backend/receta-add.php';
+        const url = edit === false ? './backend/receta-add.php' : './backend/receta-edit.php';
 
         $.post(url, postData, (response) => {
             console.log(response);
@@ -186,26 +188,35 @@ $(document).ready(function(){
     });
 
     $(document).on('click', '.receta-item', (e) => {
-        const element = $(this)[0].activeElement.parentElement.parentElement;
-        const id = $(element).attr('recetaId');
-        $.post('./backend/receta-single.php', {id}, (response) => {
-            let receta = JSON.parse(response);
-        $('#nombre').val(receta.nombre);
-        $('#ingredientes').val(receta.ingredientes);
-        $('#preparacion').val(receta.preparacion);
-        $('#tipo').val(receta.tipo);
-        $('#usuario_id').val(receta.usuario_id);
-        $('#recetaId').val(receta.id);
-        delete(receta.nombre);
-        delete(receta.ingredientes);
-        delete(receta.preparacion);
-        delete(receta.tipo);
-        delete(receta.usuario_id);
-        delete(receta.id);
-        let JsonString = JSON.stringify(receta, null, 2);
-        $('#description').val(JsonString);
-        edit = true;
-        });
         e.preventDefault();
-    });    
+    
+        const element = $(this)[0].activeElement.parentElement.parentElement; // Encuentra el elemento padre
+        const id = $(element).attr('recetaId'); // Obtén el ID de la receta
+
+        //console.log('ID del Receta:', id);
+    
+        $.post('./backend/receta-single.php', { id }, (response) => {
+            //console.log('Respuesta del servidor:', response);
+            // Convierte a objeto el JSON obtenido
+            let receta = JSON.parse(response);
+            //console.log('Receta:', receta);
+    
+            // Inserta los datos en los campos correspondientes
+            $('#NombreReceta').val(receta.NombreReceta);
+            $('#TiempoPreparacion').val(receta.TiempoPreparacion);
+    
+            // Configura el ID de la receta en un campo oculto para su uso posterior
+            $('#recetaId').val(receta.ID_Receta);
+            ///console.log('ID del receta guardado para actualización:', receta.ID_Receta); // Asegúrate de que este campo exista en tu HTML
+    
+            // Establece la bandera de edición en true
+            edit = true;
+           // console.log('Modo de edición activado:', edit);
+            
+
+
+        });
+        
+    });
+    
 });
