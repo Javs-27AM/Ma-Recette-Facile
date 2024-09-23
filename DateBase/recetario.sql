@@ -52,8 +52,7 @@ CREATE TABLE `ingrediente` (
 CREATE TABLE `instruccion` (
   `ID_Instruccion` int(11) NOT NULL,
   `NumeroPaso` int(11) NOT NULL,
-  `Descripcion` varchar(1000) NOT NULL,
-  `ID_Receta` int(11) DEFAULT NULL
+  `Descripcion` varchar(1000) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -81,7 +80,9 @@ CREATE TABLE `receta` (
   `TiempoPreparacion` int(11) DEFAULT NULL,
   `FechaRegistro` datetime NOT NULL,
   `FechaActualizacion` datetime DEFAULT NULL,
-  `ID_Usuario` int(11) DEFAULT NULL
+  `ID_Usuario` int(11) DEFAULT NULL,
+  `ID_Instruccion` int(11) DEFAULT NULL, -- Llave foránea a las instrucciones
+  `eliminar` TINYINT(1) NOT NULL DEFAULT 0 -- Campo para marcar eliminación
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -118,8 +119,7 @@ ALTER TABLE `ingrediente`
 -- Indices de la tabla `instruccion`
 --
 ALTER TABLE `instruccion`
-  ADD PRIMARY KEY (`ID_Instruccion`),
-  ADD KEY `ID_Receta` (`ID_Receta`);
+  ADD PRIMARY KEY (`ID_Instruccion`);
 
 --
 -- Indices de la tabla `lista_compras`
@@ -133,7 +133,8 @@ ALTER TABLE `lista_compras`
 --
 ALTER TABLE `receta`
   ADD PRIMARY KEY (`ID_Receta`),
-  ADD KEY `ID_Usuario` (`ID_Usuario`);
+  ADD KEY `ID_Usuario` (`ID_Usuario`),
+  ADD KEY `ID_Instruccion` (`ID_Instruccion`); -- Índice para la relación con instrucción
 
 --
 -- Indices de la tabla `usuario`
@@ -180,10 +181,11 @@ ALTER TABLE `usuario`
 --
 
 --
--- Filtros para la tabla `instruccion`
+-- Filtros para la tabla `receta`
 --
-ALTER TABLE `instruccion`
-  ADD CONSTRAINT `instruccion_ibfk_1` FOREIGN KEY (`ID_Receta`) REFERENCES `receta` (`ID_Receta`);
+ALTER TABLE `receta`
+  ADD CONSTRAINT `receta_ibfk_2` FOREIGN KEY (`ID_Instruccion`) REFERENCES `instruccion` (`ID_Instruccion`), -- Llave foránea a instrucción
+  ADD CONSTRAINT `receta_ibfk_1` FOREIGN KEY (`ID_Usuario`) REFERENCES `usuario` (`ID_Usuario`);
 
 --
 -- Filtros para la tabla `lista_compras`
@@ -192,11 +194,6 @@ ALTER TABLE `lista_compras`
   ADD CONSTRAINT `lista_compras_ibfk_1` FOREIGN KEY (`ID_Ingrediente`) REFERENCES `ingrediente` (`ID_Ingrediente`),
   ADD CONSTRAINT `lista_compras_ibfk_2` FOREIGN KEY (`ID_Receta`) REFERENCES `receta` (`ID_Receta`);
 
---
--- Filtros para la tabla `receta`
---
-ALTER TABLE `receta`
-  ADD CONSTRAINT `receta_ibfk_1` FOREIGN KEY (`ID_Usuario`) REFERENCES `usuario` (`ID_Usuario`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
