@@ -2,8 +2,8 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <title>Ma Reccette Facile</title>
-
+    <title>Agregar Receta</title>
+    
     <link rel="icon" href="http://localhost/tecwebCarlos/actividades/MaReccetteFacileV2/facile.jpeg" type="image/jpeg">
 
     <!-- BOOTSTRAP 4  -->
@@ -15,31 +15,6 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-    <style>
-      /* Agregar margen al contenedor principal */
-      .main-container {
-        margin-top: 20px;
-      }
-
-      /* Asegurarse de que la tabla ocupe el ancho restante de la pantalla */
-      .table-container {
-        flex-grow: 1;
-        margin-left: 20px;
-      }
-
-      /* Ajustes para que la tabla ocupe todo el ancho disponible */
-      table {
-        width: 100%;
-      }
-
-      /* Ajustes para el botón 'Agregar Receta' alineado a la derecha */
-      .add-recipe-btn {
-        display: flex;
-        justify-content: flex-end;
-        margin-bottom: 10px;
-      }
-    </style>
   </head>
   
   <body>
@@ -60,8 +35,6 @@
                   <img src="https://raw.githubusercontent.com/Javs-27AM/Golden-Mart/master/NetBeans/GoldenMart/src/imagenes/user.png" alt="Ícono de usuario" style="width: 30px; height: 30px;">
               </a>
               <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userMenu">
-                  <a class="dropdown-item" href="#">Iniciar Sesión</a>
-                  <a class="dropdown-item" href="#">Crear Cuenta</a>
                   <a class="dropdown-item" href="#">Cerrar Sesión</a>
               </div>
           </li>
@@ -73,57 +46,58 @@
       </div>
     </nav>
 
-    <div class="container main-container">
-      <div class="row">
-        <!-- Columna de filtros en el lado izquierdo (2 columnas) -->
-        <div class="col-md-3">
+    <div class="container">
+      <div class="row p-4">
+        <div class="col-md-5">
           <div class="card">
             <div class="card-body">
-              <h5>Filtros</h5>
-              <!-- Filtros -->
-              <form id="filters-form">
+              <!-- FORMULARIO PARA AGREGAR RECETA -->
+              <form id="receta-form" >
                 <div class="form-group">
-                  <label for="filter-category">Categoría:</label>
-                  <select class="form-control" id="filter-category" name="filter-category">
-                    <option value="">Seleccionar</option>
-                    <option value="Postres">Postres</option>
-                    <option value="Platos Principales">Platos Principales</option>
-                    <option value="Ensaladas">Ensaladas</option>
-                  </select>
+                  <label for="NombreReceta">Nombre:</label>
+                  <input class="form-control" type="text" id="NombreReceta" name="NombreReceta" placeholder="Nombre de la receta" required>
                 </div>
 
                 <div class="form-group">
-                  <label for="filter-time">Tiempo máximo (minutos):</label>
-                  <input class="form-control" type="number" id="filter-time" name="filter-time" placeholder="Ejemplo: 30">
-                </div>
+                  <label for="Imagen">Seleccionar imagen:</label>
+                  <input class="form-control" type="file" id="Imagen" name="Imagen" accept="image/*" required>
+              </div>
 
-                <button class="btn btn-secondary btn-block" type="button" id="apply-filters">Aplicar Filtros</button>
+                <div class="form-group">
+                  <label for="TiempoPreparacion">Tiempo de preparación (en minutos):</label>
+                  <input class="form-control" type="number" id="TiempoPreparacion" name="TiempoPreparacion" placeholder="Ejemplo: 30" required>
+                </div>
+              <!-- 
+                <div class="form-group">
+                  <label for="ID_Usuario">ID de usuario:</label>
+                  <input class="form-control" type="number" id="ID_Usuario" name="ID_Usuario" placeholder="Ejemplo: 123456" required>
+                </div>
+              -->
+
+                <input type="hidden" id="recetaId">
+                <button class="btn btn-primary btn-block text-center" type="submit">
+                  Agregar Receta
+                </button>
               </form>
             </div>
           </div>
         </div>
 
-        <!-- Columna principal con la tabla y el botón de agregar receta (10 columnas) -->
-        <div class="col-md-8 table-container">
-          <!-- Botón 'Agregar Receta' alineado a la derecha -->
-          <div class="add-recipe-btn">
-            <button class="btn btn-primary mb-3" id="addRecipeBtn">Agregar Receta</button>
-          </div>
-
-          <!-- Resultados de recetas -->
+         <!-- TABLA -->
+         <div class="col-md-7">
           <div class="card my-4" id="receta-result">
             <div class="card-body">
+              <!-- RESULTADO -->
               <ul id="container"></ul>
             </div>
           </div>
 
-          <!-- Tabla de recetas -->
           <table class="table table-bordered table-sm">
             <thead>
               <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Descripción</th>
+                <td>ID</td>
+                <td>Nombre</td>
+                <td>Descripcion</td>
               </tr>
             </thead>
             <tbody id="receta"></tbody>
@@ -132,7 +106,6 @@
       </div>
     </div>
 
-    <div id="recetaFormContainer"></div>
 
     <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
     <!-- Lógica del Frontend -->
