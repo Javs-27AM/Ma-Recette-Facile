@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <title>Registro e Inicio de Sesión</title>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">Mi Sitio</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <!-- Contenedor para los botones de inicio y registro -->
+            <li id="guest-buttons" class="nav-item">
+              <button id="btn-login" class="btn btn-outline-primary me-2">
+                Iniciar Sesión
+              </button>
+              <button id="btn-register" class="btn btn-outline-secondary">
+                Registrarse
+              </button>
+            </li>
+
+            <!-- Contenedor para el ícono y nombre de usuario al iniciar sesión -->
+            <li id="user-info" class="nav-item d-none">
+              <a href="#" class="nav-link">
+                <img
+                  src="user-icon.png"
+                  alt="Usuario"
+                  width="30"
+                  height="30"
+                  class="rounded-circle me-2"
+                />
+                <span id="user-name"></span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container mt-5" id="form-container">
+      <h1 class="text-center">Bienvenido</h1>
+
+      <div id="login-form-container" class="d-none">
+        <h2 class="text-center">Iniciar Sesión</h2>
+        <form id="login-form" class="form-group">
+          <div class="mb-3">
+            <label for="nombreUsuario" class="form-label"
+              >Nombre de Usuario</label
+            >
+            <input
+              type="text"
+              class="form-control"
+              id="nombreUsuario"
+              placeholder="Nombre de usuario"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Contraseña</label>
+            <input
+              type="password"
+              class="form-control"
+              id="password"
+              placeholder="Contraseña"
+              required
+            />
+          </div>
+          <button type="submit" class="btn btn-primary w-100">
+            Iniciar Sesión
+          </button>
+        </form>
+      </div>
+
+      <div id="register-form-container" class="d-none">
+        <h2 class="text-center">Registro</h2>
+        <form id="register-form" class="form-group">
+          <div class="mb-3">
+            <label for="nombreUsuarioRegister" class="form-label"
+              >Nombre de Usuario</label
+            >
+            <input
+              type="text"
+              class="form-control"
+              id="nombreUsuarioRegister"
+              placeholder="Nombre de usuario"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label for="passwordRegister" class="form-label">Contraseña</label>
+            <input
+              type="password"
+              class="form-control"
+              id="passwordRegister"
+              placeholder="Contraseña"
+              required
+            />
+          </div>
+          <button type="submit" class="btn btn-secondary w-100">
+            Registrarse
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
