@@ -7,8 +7,8 @@ Ma-Recette-Facile
 
 **Autores:**
 
-José Antonio Coyotzi Juarez
-Javier Aguilar Macías
-Regina Monserrat Avelino Farfán
+- José Antonio Coyotzi Juarez
+- Javier Aguilar Macías
+- Regina Monserrat Avelino Farfán
 
 </center>
