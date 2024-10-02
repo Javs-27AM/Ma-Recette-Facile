@@ -39,6 +39,12 @@
         justify-content: flex-end;
         margin-bottom: 10px;
       }
+
+      .add-favorite-btn{
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 10px;
+      }
     </style>
   </head>
   
@@ -76,7 +82,7 @@
     <div class="container main-container">
       <div class="row">
         <!-- Columna de filtros en el lado izquierdo (2 columnas) -->
-        <div class="col-md-3">
+        <div class="col-md-3 col-sm-1">
           <div class="card">
             <div class="card-body">
               <h5>Filtros</h5>
@@ -104,7 +110,7 @@
         </div>
 
         <!-- Columna principal con la tabla y el botón de agregar receta (10 columnas) -->
-        <div class="col-md-8 table-container">
+        <div class="col-md-3 col-sm-3 table-container">
           <!-- Botón 'Agregar Receta' alineado a la derecha -->
           <div class="add-recipe-btn">
             <button class="btn btn-primary mb-3" id="addRecipeBtn">Agregar Receta</button>
