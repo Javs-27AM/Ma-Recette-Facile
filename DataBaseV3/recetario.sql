@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 26-09-2024 a las 23:02:20
--- Versión del servidor: 10.4.32-MariaDB
--- Versión de PHP: 8.2.12
+-- Tiempo de generación: 02-10-2024 a las 20:17:16
+-- Versión del servidor: 10.4.28-MariaDB
+-- Versión de PHP: 8.0.28
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -113,10 +113,10 @@ CREATE TABLE `receta` (
 --
 
 INSERT INTO `receta` (`ID_Receta`, `NombreReceta`, `Imagen`, `TiempoPreparacion`, `FechaRegistro`, `FechaActualizacion`, `Eliminado`, `ID_Usuario`, `ID_Categoria`) VALUES
-(1, 'Ensalada Diego', '../imagesDiagrama de diseño Ma recette facille-Compartir.png', 88, '2024-09-01 00:00:00', '2024-09-26 14:30:36', 0, 1, 1),
-(2, 'Spaghetti Bolognese', '../imageshamburguesa.jpeg', 50, '2024-09-03 00:00:00', '2024-09-24 12:22:35', 0, 2, 1),
-(3, 'Pollo al Curry', 'pollo_curry.jpeg', 15, '2024-09-05 00:00:00', '2024-09-23 00:58:52', 0, 3, 1),
-(4, 'Tacos al Pastor', 'tacos_al_pastor.jpg', 30, '2024-09-07 00:00:00', '2024-09-13 00:00:00', 0, 4, 1),
+(1, 'Ensalada Cesar', '../imagesensaladaCesar.jpeg', 60, '2024-09-01 00:00:00', '2024-09-30 14:30:03', 1, 1, 3),
+(2, 'Spaghetti Bolognese', '../imagesspaghettiBolognesa.jpg', 50, '2024-09-03 00:00:00', '2024-09-30 15:37:46', 0, 2, 2),
+(3, 'Pollo al Curry', '../imagespollo_curry.jpeg', 15, '2024-09-05 00:00:00', '2024-09-30 15:38:14', 0, 3, 2),
+(4, 'Tacos al Pastor', '../imagestacosPastor.jpeg', 30, '2024-09-07 00:00:00', '2024-09-26 09:30:12', 0, 4, 1),
 (5, 'Cheesecake', 'cheesecake.jpg', 90, '2024-09-09 00:00:00', '2024-09-14 00:00:00', 0, 5, 1),
 (6, 'Sushi', 'sushi.jpg', 25, '2024-09-22 19:45:50', '2024-09-22 19:45:50', 0, NULL, 1),
 (7, 'Tacos al Pastor', 'tacos_al_pastor.jpg', 30, '2024-09-22 19:48:10', '2024-09-22 19:48:10', 0, NULL, 1),
@@ -136,8 +136,8 @@ INSERT INTO `receta` (`ID_Receta`, `NombreReceta`, `Imagen`, `TiempoPreparacion`
 (21, 'Carlota de Limon', 'carlota_limon.jpg', 20, '2024-09-23 01:05:05', '2024-09-23 01:05:05', 0, NULL, 1),
 (22, 'Hamburguesa', 'hamburguesa.jpeg', 20, '2024-09-23 18:10:53', '2024-09-23 18:10:53', 0, NULL, 1),
 (23, 'Pizza', '../imagespollo_curry.jpeg', 40, '2024-09-23 18:28:02', '2024-09-23 18:28:02', 0, NULL, 1),
-(24, 'Sushi2', '../imagesDiagrama de diseño Ma recette facille-Compartir.png', 21, '2024-09-26 14:15:18', '2024-09-26 14:15:18', 0, NULL, 0),
-(25, 'Prueba', '../imagesDiagrama de analisis Ma recette facille-Compartir.png', 17, '2024-09-26 14:29:50', '2024-09-26 14:29:50', 0, NULL, 0);
+(28, 'Mole', '../images/mole.jpeg', 60, '2024-09-30 14:04:14', '2024-09-30 14:04:14', 0, NULL, 2),
+(29, 'Ensalada Azafata', '../images/ensaladaCesar.jpeg', 10, '2024-10-02 12:05:17', '2024-10-02 12:05:17', 0, NULL, 3);
 
 -- --------------------------------------------------------
 
@@ -199,7 +199,8 @@ ALTER TABLE `lista_compras`
 --
 ALTER TABLE `receta`
   ADD PRIMARY KEY (`ID_Receta`),
-  ADD KEY `ID_Usuario` (`ID_Usuario`);
+  ADD KEY `ID_Usuario` (`ID_Usuario`),
+  ADD KEY `FK_Receta_Categoria` (`ID_Categoria`);
 
 --
 -- Indices de la tabla `usuario`
@@ -233,7 +234,7 @@ ALTER TABLE `instruccion`
 -- AUTO_INCREMENT de la tabla `receta`
 --
 ALTER TABLE `receta`
-  MODIFY `ID_Receta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `ID_Receta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
 --
 -- AUTO_INCREMENT de la tabla `usuario`
@@ -262,6 +263,7 @@ ALTER TABLE `lista_compras`
 -- Filtros para la tabla `receta`
 --
 ALTER TABLE `receta`
+  ADD CONSTRAINT `FK_Receta_Categoria` FOREIGN KEY (`ID_Categoria`) REFERENCES `categoria` (`ID_Categoria`),
   ADD CONSTRAINT `receta_ibfk_1` FOREIGN KEY (`ID_Usuario`) REFERENCES `usuario` (`ID_Usuario`);
 COMMIT;
 

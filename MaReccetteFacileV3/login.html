@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Iniciar Sesión</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-md-6">
+          <h2 class="text-center">Iniciar Sesión</h2>
+          <form id="login-form">
+            <div class="form-group">
+              <label for="username">Nombre de usuario</label>
+              <input type="text" class="form-control" id="username" required />
+            </div>
+            <div class="form-group">
+              <label for="password">Contraseña</label>
+              <input
+                type="password"
+                class="form-control"
+                id="password"
+                required
+              />
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">
+              Iniciar Sesión
+            </button>
+          </form>
+          <div id="error-message" class="text-danger mt-3"></div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script>
+      $("#login-form").submit(function (event) {
+        event.preventDefault();
+        let username = $("#username").val();
+        let password = $("#password").val();
+
+        $.ajax({
+          type: "POST",
+          url: "./backend/API/login.php",
+          data: { username: username, password: password },
+          success: function (response) {
+            if (response === "success") {
+              window.location.href = "index.html";
+            } else {
+              $("#error-message").text("Usuario o contraseña incorrectos");
+            }
+          },
+        });
+      });
+    </script>
+  </body>
+</html>

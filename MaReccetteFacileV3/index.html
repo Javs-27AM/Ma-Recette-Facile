@@ -24,6 +24,12 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     <style>
+      /* Ajustar el tamaño de las imágenes en los resultados de recetas */
+      #container img {
+        width: 300px; /* Ancho reducido a 300 px */
+        height: auto; /* Mantener la proporción del alto */
+      }
+
       /* Agregar margen al contenedor principal */
       .main-container {
         margin-top: 20px;
@@ -45,6 +51,16 @@
         display: flex;
         justify-content: flex-end;
         margin-bottom: 10px;
+      }
+
+      table {
+        border-collapse: collapse; /* Evita que haya bordes dobles */
+      }
+
+      td,
+      th,
+      table {
+        border: none; /* Elimina todos los bordes de la tabla y las celdas */
       }
     </style>
   </head>
@@ -89,9 +105,8 @@
               class="dropdown-menu dropdown-menu-right"
               aria-labelledby="userMenu"
             >
-              <a class="dropdown-item" href="#">Iniciar Sesión</a>
-              <a class="dropdown-item" href="#">Crear Cuenta</a>
-              <a class="dropdown-item" href="#">Cerrar Sesión</a>
+              <a class="dropdown-item" href="login.html">Iniciar Sesión</a>
+              <a class="dropdown-item" href="register.html">Registrarse</a>
             </div>
           </li>
         </ul>
@@ -127,12 +142,14 @@
                     id="filter-category"
                     name="filter-category"
                   >
-                    <option value="">Seleccionar</option>
-                    <option value="Postres">Postres</option>
-                    <option value="Platos Principales">
-                      Platos Principales
+                    <option value="" disabled selected>
+                      Seleccione una categoría
                     </option>
-                    <option value="Ensaladas">Ensaladas</option>
+                    <option value="1">Postre</option>
+                    <option value="2">Plato Principal</option>
+                    <option value="3">Ensalada</option>
+                    <option value="4">Aperitivo</option>
+                    <option value="5">Bebida</option>
                   </select>
                 </div>
 
@@ -176,10 +193,10 @@
           </div>
 
           <!-- Tabla de recetas -->
-          <table class="table table-bordered table-sm">
+          <table class="table table-sm">
             <thead>
               <tr>
-                <th>ID</th>
+                <!--<th>ID</th>-->
                 <th>Nombre</th>
                 <th>Descripción</th>
               </tr>
