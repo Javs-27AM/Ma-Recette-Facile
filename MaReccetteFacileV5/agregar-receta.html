@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Agregar Receta</title>
+    
+    <link rel="icon" href="http://localhost/tecwebCarlos/actividades/MaReccetteFacileV4/facile.jpeg" type="image/jpeg">
+
+    <!-- BOOTSTRAP 4  -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <style>
+       /* Contenedor principal */
+       .main-container {
+        margin-top: 20px;
+      }
+
+      /* Diseño en mosaico para las recetas */
+      #receta {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Tamaño mínimo de las tarjetas */
+        gap: 20px; /* Espacio entre las tarjetas */
+        padding: 20px;
+      }
+
+      /* Tarjeta de receta */
+      .card-recipe {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+      }
+
+      /* Efecto hover en las tarjetas */
+      .card-recipe:hover {
+        transform: scale(1.05);
+      }
+
+      /* Imagen dentro de la tarjeta */
+      .card-img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+      }
+
+      /* Contenido dentro de la tarjeta */
+      .card-body {
+        padding: 15px;
+      }
+
+      /* Título de la receta */
+      .card-title {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+
+      /* Texto en la tarjeta */
+      .card-text {
+        font-size: 14px;
+        margin-bottom: 5px;
+      }
+
+      /* Estilo básico para el modal */
+      .modal {
+          display: none;
+          position: fixed;
+          z-index: 1;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          overflow: auto;
+          background-color: rgba(0, 0, 0, 0.4);
+      }
+
+      .modal-content {
+          background-color: #fff;
+          margin: 15% auto;
+          padding: 20px;
+          border: 1px solid #888;
+          width: 80%;
+      }
+
+      .close {
+          color: #aaa;
+          float: right;
+          font-size: 28px;
+          font-weight: bold;
+          cursor: pointer;
+      }
+    </style>
+
+  </head>
+  
+  <body>
+
+    <!-- BARRA DE NAVEGACIÓN  -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <a class="navbar-brand" href=".">Ma Reccette Facile</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ml-auto">
+          <!-- Ícono que despliega el submenú -->
+          <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="userMenu" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <!-- Ícono de usuario personalizado -->
+                  <img src="https://raw.githubusercontent.com/Javs-27AM/Golden-Mart/master/NetBeans/GoldenMart/src/imagenes/user.png" alt="Ícono de usuario" style="width: 30px; height: 30px;">
+              </a>
+              <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userMenu">
+                  <a class="dropdown-item" href="#">Cerrar Sesión</a>
+              </div>
+          </li>
+      </ul>
+        <form class="form-inline my-2 my-lg-0">
+          <input class="form-control mr-sm-2" name="search" id="search" type="search" placeholder="Nombre Receta o Categoría" aria-label="Search">
+          <button class="btn btn-success my-2 my-sm-0" type="submitBucar">Buscar</button>
+        </form>
+      </div>
+    </nav>
+
+    <div class="container">
+      <div class="row p-4">
+        <!-- Formulario de agregar receta, inicialmente oculto -->
+        <div class="col-md-5" style="display: none;">
+          <div class="card">
+            <div class="card-body">
+              <form id="receta-form">
+                <div class="form-group">
+                  <label for="NombreReceta">Nombre:</label>
+                  <input class="form-control" type="text" id="NombreReceta" name="NombreReceta" placeholder="Nombre de la receta" required>
+                </div>
+
+                <div class="form-group">
+                  <label for="Imagen">Seleccionar imagen:</label>
+                  <input class="form-control" type="file" id="Imagen" name="Imagen" accept="image/*" required>
+                </div>
+
+                <div class="form-group">
+                  <label for="TiempoPreparacion">Tiempo de preparación (en minutos):</label>
+                  <input class="form-control" type="number" id="TiempoPreparacion" name="TiempoPreparacion" placeholder="Ejemplo: 30" required>
+                </div>
+
+                <div class="form-group">
+                  <label for="Categoria">Categoría:</label>
+                  <select class="form-control" id="Categoria" name="Categoria" required>
+                    <option value="" disabled selected>Seleccione una categoría</option> 
+                    <option value="1">Postre</option>
+                    <option value="2">Plato Principal</option>
+                    <option value="3">Ensalada</option>
+                    <option value="4">Aperitivo</option>
+                    <option value="5">Bebida</option>
+                  </select>
+                </div>
+
+                <!-- Ingredientes -->
+                <div id="ingredientes-section">
+                  <label>Ingredientes:</label>
+                  <div class="form-group ingrediente-row">
+                    <input class="form-control" type="text" name="Ingredientes[]" placeholder="Ingrediente" required>
+                  </div>
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm" id="add-ingrediente-btn">Agregar otro ingrediente</button>
+                <br><br>
+
+                <!-- Instrucciones -->
+                <div id="instrucciones-section">
+                  <label>Instrucciones:</label>
+                  <div class="form-group instruccion-row">
+                    <textarea class="form-control" name="Instrucciones[]" placeholder="Escriba la instrucción" required></textarea>
+                  </div>
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm" id="add-instruccion-btn">Agregar otra instrucción</button>
+                <br><br>
+
+                <input type="hidden" id="recetaId">
+                <button class="btn btn-primary btn-block text-center" type="submit">Agregar Receta</button>
+                <button type="button" class="btn btn-secondary btn-block text-center" id="cancelarButton">Cancelar</button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botón Agregar Receta -->
+        <div class="col-md-12 text-right mb-3">
+          <button class="btn btn-primary" id="agregarRecetaBtn">Agregar Receta</button>
+        </div>
+
+        <div id="recipeModal" class="modal">
+          <div class="modal-content">
+              <span class="close">&times;</span>
+              <div id="modalBody">
+                  <!-- Aquí se insertarán los detalles de la receta -->
+              </div>
+          </div>
+      </div>
+
+        <!-- Mosaico de Recetas ocupa la mayor parte de la pantalla -->
+        <div class="col-md-12">
+          <div class="row" id="receta">
+            <!-- Las tarjetas de receta se insertarán aquí mediante JavaScript -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <!-- Lógica del Frontend -->
+    <script src="app_agregar.js"></script>
+  </body>
+</html>
