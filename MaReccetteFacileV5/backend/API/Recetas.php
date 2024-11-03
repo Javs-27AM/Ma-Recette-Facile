@@ -3,7 +3,56 @@ namespace BACKEND\API;
 
 use BACKEND\API\DataBase;
 require_once __DIR__ . '/DataBase.php';
+class Usuario extends DataBase {
+    public function __construct() {
+        parent::__construct('recetario');
+    }
 
+    public function registrar($nombreUsuario, $password) {
+        // Verificar si el usuario ya existe
+        $queryVerificar = "SELECT ID_Usuario FROM usuario WHERE NombreUsuario = ?";
+        $stmtVerificar = $this->conexion->prepare($queryVerificar);
+        $stmtVerificar->bind_param('s', $nombreUsuario);
+        $stmtVerificar->execute();
+        $stmtVerificar->store_result();
+
+        if ($stmtVerificar->num_rows > 0) {
+            // Nombre de usuario ya existe
+            $stmtVerificar->close();
+            return ["success" => false, "message" => "Nombre de usuario ya existe"];
+        }
+        $stmtVerificar->close();
+
+        // Continuar con el registro si el nombre de usuario no existe
+        $hashPassword = password_hash($password, PASSWORD_BCRYPT);
+        $fechaRegistro = date('Y-m-d H:i:s');
+        $queryInsertar = "INSERT INTO usuario (NombreUsuario, Password, FechaRegistro) VALUES (?, ?, ?)";
+        $stmtInsertar = $this->conexion->prepare($queryInsertar);
+        $stmtInsertar->bind_param('sss', $nombreUsuario, $hashPassword, $fechaRegistro);
+
+        if ($stmtInsertar->execute()) {
+            $stmtInsertar->close();
+            return ["success" => true, "message" => "Registro exitoso"];
+        } else {
+            $stmtInsertar->close();
+            return ["success" => false, "message" => "Error en el registro"];
+        }
+    }
+
+    public function login($nombreUsuario, $password) {
+        $query = "SELECT Password FROM usuario WHERE NombreUsuario = ?";
+        $stmt = $this->conexion->prepare($query);
+        $stmt->bind_param('s', $nombreUsuario);
+        $stmt->execute();
+        $stmt->bind_result($hashPassword);
+        if ($stmt->fetch() && password_verify($password, $hashPassword)) {
+            $stmt->close();
+            return true;
+        }
+        $stmt->close();
+        return false;
+    }
+}
 class Recetas extends DataBase {
     private $response;
 
@@ -13,6 +62,7 @@ class Recetas extends DataBase {
         $this->conexion->set_charset("utf8mb4");
     }
 
+     
   // Agregar receta
   public function add($jsonOBJ) {
     $this->response = array(
