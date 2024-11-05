@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/API/Recetas.php';
 use BACKEND\API\Usuario;
+
 header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -10,10 +11,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $usuario = new Usuario();
 
     if ($usuario->login($nombreUsuario, $password)) {
+        // Supongamos que login() también establece un ID de usuario en la clase Usuario.
         session_start();
         $_SESSION['nombreUsuario'] = $nombreUsuario;
-        echo json_encode(["success" => true, "message" => $nombreUsuario, "Inicio de sesión exitoso"]);
-
+        $_SESSION['idUsuario'] = $usuario->getId(); // Asegúrate de tener este método en la clase Usuario
+        
+        echo json_encode(["success" => true, "message" => "Bienvenido, " . $nombreUsuario . "!"]);
     } else {
         echo json_encode(["success" => false, "message" => "Usuario o contraseña incorrectos"]);
     }

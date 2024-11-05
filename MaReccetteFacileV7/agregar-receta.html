@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Ma Recette Facile</title>
+    <title>Agregar Receta</title>
 
     <link
       rel="icon"
@@ -14,6 +14,10 @@
     <link
       rel="stylesheet"
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
     />
 
     <!-- jQuery -->
@@ -79,6 +83,7 @@
         font-size: 14px;
         margin-bottom: 5px;
       }
+
       /* Estilo básico para el modal */
       .modal {
         display: none;
@@ -133,7 +138,7 @@
 
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav ml-auto">
-          <!-- Ícono de usuario -->
+          <!-- Ícono que despliega el submenú -->
           <li class="nav-item dropdown">
             <a
               class="nav-link dropdown-toggle"
@@ -144,6 +149,7 @@
               aria-haspopup="true"
               aria-expanded="false"
             >
+              <!-- Ícono de usuario personalizado -->
               <img
                 src="https://raw.githubusercontent.com/Javs-27AM/Golden-Mart/master/NetBeans/GoldenMart/src/imagenes/user.png"
                 alt="Ícono de usuario"
@@ -175,28 +181,65 @@
             placeholder="Nombre Receta o Categoría"
             aria-label="Search"
           />
-          <button class="btn btn-success my-2 my-sm-0" type="submit">
+          <button class="btn btn-success my-2 my-sm-0" type="submitBucar">
             Buscar
           </button>
         </form>
       </div>
     </nav>
 
-    <!-- Contenido principal -->
-    <div class="container main-container">
-      <div class="row">
-        <!-- Columna de filtros en el lado izquierdo (2 columnas) -->
-        <div class="col-md-3">
+    <div class="container">
+      <div class="row p-4">
+        <!-- Formulario de agregar receta, inicialmente oculto -->
+        <div class="col-md-5" style="display: none">
           <div class="card">
             <div class="card-body">
-              <h5>Filtros</h5>
-              <form id="filters-form">
+              <form id="receta-form">
                 <div class="form-group">
-                  <label for="filter-category">Categoría:</label>
+                  <label for="NombreReceta">Nombre:</label>
+                  <input
+                    class="form-control"
+                    type="text"
+                    id="NombreReceta"
+                    name="NombreReceta"
+                    placeholder="Nombre de la receta"
+                    required
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="Imagen">Seleccionar imagen:</label>
+                  <input
+                    class="form-control"
+                    type="file"
+                    id="Imagen"
+                    name="Imagen"
+                    accept="image/*"
+                    required
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="TiempoPreparacion"
+                    >Tiempo de preparación (en minutos):</label
+                  >
+                  <input
+                    class="form-control"
+                    type="number"
+                    id="TiempoPreparacion"
+                    name="TiempoPreparacion"
+                    placeholder="Ejemplo: 30"
+                    required
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="Categoria">Categoría:</label>
                   <select
                     class="form-control"
-                    id="filter-category"
-                    name="filter-category"
+                    id="Categoria"
+                    name="Categoria"
+                    required
                   >
                     <option value="" disabled selected>
                       Seleccione una categoría
@@ -209,56 +252,91 @@
                   </select>
                 </div>
 
-                <div class="form-group">
-                  <label for="filter-time">Tiempo máximo (minutos):</label>
-                  <input
-                    class="form-control"
-                    type="number"
-                    id="filter-time"
-                    name="filter-time"
-                    placeholder="Ejemplo: 30"
-                  />
+                <!-- Ingredientes -->
+                <div id="ingredientes-section">
+                  <label>Ingredientes:</label>
+                  <div class="form-group ingrediente-row">
+                    <input
+                      class="form-control"
+                      type="text"
+                      name="Ingredientes[]"
+                      placeholder="Ingrediente"
+                      required
+                    />
+                  </div>
                 </div>
-
                 <button
-                  class="btn btn-secondary btn-block"
                   type="button"
-                  id="apply-filters"
+                  class="btn btn-secondary btn-sm"
+                  id="add-ingrediente-btn"
                 >
-                  Aplicar Filtros
+                  Agregar otro ingrediente
                 </button>
+                <br /><br />
+
+                <!-- Instrucciones -->
+                <div id="instrucciones-section">
+                  <label>Instrucciones:</label>
+                  <div class="form-group instruccion-row">
+                    <textarea
+                      class="form-control"
+                      name="Instrucciones[]"
+                      placeholder="Escriba la instrucción"
+                      required
+                    ></textarea>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  class="btn btn-secondary btn-sm"
+                  id="add-instruccion-btn"
+                >
+                  Agregar otra instrucción
+                </button>
+                <br /><br />
+
+                <input type="hidden" id="recetaId" />
+                <input type="hidden" id="usuarioId" /> <!-- Aquí puedes establecer el ID del usuario -->
 
                 <button
-                  class="btn btn-secondary btn-block"
-                  type="button"
-                  id="reset-filters"
+                  class="btn btn-primary btn-block text-center"
+                  type="submit"
                 >
-                  Quitar Filtros
+                  Agregar Receta
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-secondary btn-block text-center"
+                  id="cancelarButton"
+                >
+                  Cancelar
                 </button>
               </form>
             </div>
           </div>
         </div>
 
-        <!-- Columna principal con el botón de agregar receta y mosaico de recetas -->
-        <div class="col-md-9">
-          <!-- Botón 'Agregar Receta' -->
-          <div class="add-recipe-btn">
-            <button class="btn btn-primary mb-3" id="addRecipeBtn">
-              Ver Receta
-            </button>
-          </div>
+        <!-- Botón Agregar Receta -->
+        <div class="col-md-12 text-right mb-3">
+          <button class="btn btn-primary" id="agregarRecetaBtn">
+            Agregar Receta
+          </button>
+        </div>
 
-          <div id="recipeModal" class="modal">
-            <div class="modal-content">
-              <span class="close">&times;</span>
-              <div id="modalBody">
-                <!-- Aquí se insertarán los detalles de la receta -->
-              </div>
+        <div id="recipeModal" class="modal">
+          <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="modalBody">
+              <!-- Aquí se insertarán los detalles de la receta -->
             </div>
           </div>
-          <!-- Mosaico de recetas -->
-          <div id="receta"></div>
+        </div>
+
+        <!-- Mosaico de Recetas ocupa la mayor parte de la pantalla -->
+        <div class="col-md-12">
+          <div class="row" id="receta">
+            <!-- Las tarjetas de receta se insertarán aquí mediante JavaScript -->
+          </div>
         </div>
       </div>
     </div>
@@ -347,8 +425,12 @@
       <input type="password" id="loginPass" placeholder="Contraseña" required />
       <button onclick="loginUser()">Ingresar</button>
     </div>
-
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-    <script src="app.js"></script>
+    <script
+      src="https://code.jquery.com/jquery-3.3.1.min.js"
+      integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+      crossorigin="anonymous"
+    ></script>
+    <!-- Lógica del Frontend -->
+    <script src="app_agregar.js"></script>
   </body>
 </html>

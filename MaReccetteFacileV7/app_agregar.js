@@ -38,10 +38,7 @@ $(document).ready(function () {
                                 <button class="receta-edit btn btn-warning">Editar</button>
                                 <button class="receta-delete btn btn-danger">Eliminar</button>
 
-                                <div style="position: absolute; bottom: 15px; right: 15px;">
-                                    <i class="far fa-heart" title="Favorito" style="cursor: pointer; color: #ff6b6b; font-size: 1.5em;"></i>
-                                    <i class="fas fa-share" title="Compartir" style="cursor: pointer; color: #6c757d; font-size: 1.5em; margin-left: 10px;"></i>
-                                </div>
+                                
                             </div>   
                         </div>
 
@@ -122,6 +119,8 @@ $(document).ready(function () {
 
   $("#receta-form").submit((e) => {
     e.preventDefault();
+    console.log("ID de Usuario:", $("#usuarioId").val()); 
+    
 
     let formData = new FormData();
     formData.append("id", $("#recetaId").val());
@@ -129,11 +128,12 @@ $(document).ready(function () {
     formData.append("Imagen", $("#Imagen")[0].files[0]);
     formData.append("TiempoPreparacion", $("#TiempoPreparacion").val());
     formData.append("ID_Categoria", $("#Categoria").val());
-
+    formData.append("ID_Usuario", $("#usuarioId").val()); // Agregar el ID del usuario
+    console.log("ID de Receta:", $("#recetaId").val()); 
     // Obtener los ingredientes
     const ingredientes = [];
     $("#ingredientes-section .ingrediente-row input").each(function () {
-      ingredientes.push({ ID_Ingrediente: $(this).val() });
+      ingredientes.push({ NombreIngrediente: $(this).val() });
     });
     formData.append("Ingredientes", JSON.stringify(ingredientes)); // Convertir a JSON
 
@@ -146,8 +146,7 @@ $(document).ready(function () {
     });
     formData.append("Instrucciones", JSON.stringify(instrucciones)); // Convertir a JSON
     console.log("Instrucciones:", instrucciones);
-    const url =
-      edit === false ? "./backend/receta-add.php" : "./backend/receta-edit.php";
+    const url = edit === false ? "./backend/receta-add.php" : "./backend/receta-edit.php";
 
     $.ajax({
       url: url,
@@ -169,6 +168,7 @@ $(document).ready(function () {
         $("#TiempoPreparacion").val("");
         $("#Categoria").val("0");
         $("#recetaId").val("");
+        $("#usuarioId").val(""); // Limpiar el campo del ID del usuario
         // Reiniciar los ingredientes
         $("#ingredientes-section").empty(); // Eliminar todos los elementos de ingredientes
         // Reiniciar instrucciones
@@ -179,12 +179,16 @@ $(document).ready(function () {
         listarRecetas();
       },
     });
-  });
+});
+
 
   $(document).on("click", ".receta-edit", function (e) {
     if (confirm("¿Realmente deseas editar la receta?")) {
       const element = $(this).closest(".card-recipe"); // Encuentra el elemento padre de la receta
       const recipeId = $(element).data("id"); // Obtiene el ID de la receta seleccionada
+      $("#recetaId").val(recipeId);
+
+      console.log("ID de la receta en campo oculto:", $("#recetaId").val()); // Verificación del ID
 
       $("#receta").hide(); // Oculta los mosaicos
       $(".col-md-5").show(); // Muestra el formulario
@@ -206,7 +210,7 @@ $(document).ready(function () {
         // Inserta los datos en los campos correspondientes
         $("#NombreReceta").val(receta.NombreReceta);
         $("#TiempoPreparacion").val(receta.TiempoPreparacion);
-        $("#recetaId").val(receta.ID_Receta);
+        //$("#recetaId").val(receta.ID_Receta);
         $("#Categoria").val(receta.ID_Categoria); // Configura el ID de la receta en un campo oculto
 
         // Verificar si hay una imagen asociada y mostrarla si existe
@@ -221,13 +225,13 @@ $(document).ready(function () {
         $("#ingredientes-section").empty();
         if (receta.ingredientes && Array.isArray(receta.ingredientes)) {
           receta.ingredientes.forEach((ingrediente) => {
-            const cantidad = ingrediente.Cantidad || ""; // Mostrar cantidad si está disponible
+            // Ya no hay necesidad de una variable para cantidad
             $("#ingredientes-section").append(`
-            <div class="ingrediente-row">
-                <input type="text" value="${ingrediente.Nombre}" placeholder="Ingrediente" class="form-control" required />
-                <input type="text" value="${cantidad}" placeholder="Cantidad" class="form-control" required />
-            </div>
-        `);
+              <div class="ingrediente-row">
+                  <input type="text" value="${ingrediente.Nombre}" placeholder="Ingrediente" class="form-control" required />
+                  
+              </div>
+            `);
           });
         } else {
           console.warn("No hay ingredientes disponibles o no es un array.");
@@ -245,7 +249,9 @@ $(document).ready(function () {
           });
         } else {
           console.warn("No hay instrucciones disponibles o no es un array.");
-        }
+        } 
+        edit = true;
+        $('button[type="submit"]').text('Editar Receta');
       });
     }
   });
@@ -352,17 +358,38 @@ $(document).ready(function () {
       instruccionesSection.appendChild(newInstructionRow);
     });
 
-  $("#agregarRecetaBtn").click(function () {
-    if ($(this).text() === "Agregar Receta") {
-      $("#receta").hide(); // Oculta los mosaicos de recetas
-      $(".col-md-5").show(); // Muestra el contenedor del formulario
-      $(this).text("Regresar"); // Cambia el texto del botón a "Regresar"
-    } else {
-      $("#receta").show(); // Muestra los mosaicos de recetas
-      $(".col-md-5").hide(); // Oculta el contenedor del formulario
-      $(this).text("Agregar Receta"); // Cambia el texto del botón a "Agregar Receta"
-    }
-  });
+    $("#agregarRecetaBtn").click(function () {
+      if ($(this).text() === "Agregar Receta") {
+        $("#receta").hide(); // Oculta los mosaicos de recetas
+        $(".col-md-5").show(); // Muestra el contenedor del formulario
+    
+        // Obtener el ID del usuario y llenarlo en el campo oculto
+        $.ajax({
+          url: "./backend/getUser.php",
+          method: "GET",
+          dataType: "json",
+          success: function (data) {
+            console.log("Datos recibidos:", data); // Agrega esta línea para inspeccionar la respuesta
+            if (data.idUsuario) {
+              $("#usuarioId").val(data.idUsuario);
+              console.log("ID del usuario llenado:", $("#usuarioId").val());
+            } else {
+              console.error("No se pudo obtener el ID del usuario.");
+            }
+          },
+          error: function (jqXHR, textStatus, errorThrown) {
+            console.error("Error al obtener el ID del usuario:", textStatus, errorThrown); // Detalle del error
+          },
+        });
+    
+        $(this).text("Regresar"); // Cambia el texto del botón a "Regresar"
+      } else {
+        $("#receta").show(); // Muestra los mosaicos de recetas
+        $(".col-md-5").hide(); // Oculta el contenedor del formulario
+        $(this).text("Agregar Receta"); // Cambia el texto del botón a "Agregar Receta"
+      }
+    });
+    
 
   $(document).on("click", ".card-recipe", function () {
     const recipeId = $(this).data("id"); // Obtiene el ID de la receta seleccionada
@@ -465,6 +492,10 @@ $(document).ready(function () {
           '<button class="dropdown-item" id="logoutButton">Cerrar Sesión</button>'
         );
         $("#logoutButton").show();
+
+        $("#usuarioId").val(data.idUsuario);
+        console.log("ID del usuario llenado:", $("#usuarioId").val());
+
       } else {
         $("#userMenuItems").append(
           '<a class="dropdown-item" href="#" id="openLogin">Iniciar Sesión</a>'

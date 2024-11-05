@@ -7,6 +7,10 @@ class Usuario extends DataBase {
     public function __construct() {
         parent::__construct('recetario');
     }
+    public function getId() {
+        return $this->id; // Suponiendo que $this->id contiene el ID del usuario después de una autenticación exitosa
+    }
+    
 
     public function registrar($nombreUsuario, $password) {
         // Verificar si el usuario ya existe
@@ -40,18 +44,79 @@ class Usuario extends DataBase {
     }
 
     public function login($nombreUsuario, $password) {
-        $query = "SELECT Password FROM usuario WHERE NombreUsuario = ?";
+        // Consulta para obtener la contraseña y el ID del usuario
+        $query = "SELECT ID_Usuario, Password FROM usuario WHERE NombreUsuario = ?";
         $stmt = $this->conexion->prepare($query);
         $stmt->bind_param('s', $nombreUsuario);
         $stmt->execute();
-        $stmt->bind_result($hashPassword);
-        if ($stmt->fetch() && password_verify($password, $hashPassword)) {
-            $stmt->close();
-            return true;
+        $stmt->bind_result($idUsuario, $hashPassword); // Obtener el ID y el hash de la contraseña
+    
+        // Verificar si se obtuvo un resultado
+        if ($stmt->fetch()) {
+            // Verificar la contraseña
+            if (password_verify($password, $hashPassword)) {
+                // Almacenar el ID del usuario en la propiedad de la clase si es necesario
+                $this->id = $idUsuario; // Asignar el ID a la variable de instancia
+    
+                // Cerrar el statement
+                $stmt->close();
+                return true; // Inicio de sesión exitoso
+            }
         }
+    
+        // Cerrar el statement y devolver false si falla
         $stmt->close();
-        return false;
+        return false; // Usuario o contraseña incorrectos
     }
+    public function usuarioFavorito($usuarioId, $recetaId) {
+        // Verificar si ya existe el favorito
+        $queryVerificar = "SELECT ID_Usuario FROM favoritos WHERE ID_Usuario = ? AND ID_Receta = ?";
+        $stmtVerificar = $this->conexion->prepare($queryVerificar);
+        $stmtVerificar->bind_param('ii', $usuarioId, $recetaId); // Usamos 'ii' porque ambos IDs son enteros
+        $stmtVerificar->execute();
+        $stmtVerificar->store_result();
+    
+        if ($stmtVerificar->num_rows > 0) {
+            // Si ya es favorito, eliminarlo
+            $stmtVerificar->close();
+            
+            $queryEliminar = "DELETE FROM favoritos WHERE ID_Usuario = ? AND ID_Receta = ?";
+            $stmtEliminar = $this->conexion->prepare($queryEliminar);
+            $stmtEliminar->bind_param('ii', $usuarioId, $recetaId);
+            
+            if ($stmtEliminar->execute()) {
+                $stmtEliminar->close();
+                return ["success" => true, "action" => "removed"]; // Indica que se ha eliminado
+            } else {
+                $stmtEliminar->close();
+                return ["success" => false, "message" => "Error al eliminar el favorito"];
+            }
+        } else {
+            // Si no es favorito, agregarlo
+            $stmtVerificar->close();
+            
+            $queryInsertar = "INSERT INTO favoritos (ID_Usuario, ID_Receta) VALUES (?, ?)";
+            $stmtInsertar = $this->conexion->prepare($queryInsertar);
+            $stmtInsertar->bind_param('ii', $usuarioId, $recetaId);
+            
+            if ($stmtInsertar->execute()) {
+                $stmtInsertar->close();
+                return ["success" => true, "action" => "added"]; // Indica que se ha agregado
+            } else {
+                $stmtInsertar->close();
+                return ["success" => false, "message" => "Error al agregar el favorito"];
+            }
+        }
+    }
+
+    public function esFavorito($usuarioId, $recetaId) {
+        $query = $this->pdo->prepare("SELECT * FROM favoritos WHERE ID_Usuario = ? AND ID_Receta = ?");
+        $query->execute([$usuarioId, $recetaId]);
+        return $query->fetch() !== false; // Retorna true si es favorito, false en caso contrario
+    }
+
+    
+    
 }
 class Recetas extends DataBase {
     private $response;
@@ -79,6 +144,10 @@ class Recetas extends DataBase {
         $nombreReceta = $_POST['NombreReceta'];
         $tiempoPreparacion = $_POST['TiempoPreparacion'];
         $idCategoria = $_POST['ID_Categoria'];
+        
+        // Obtener el ID del usuario de la sesión
+        session_start(); // Asegúrate de que la sesión esté iniciada
+        $idUsuario = isset($_SESSION['idUsuario']) ? $_SESSION['idUsuario'] : null;
 
         // Manejo de la imagen
         if (isset($_FILES['Imagen']) && $_FILES['Imagen']['error'] == UPLOAD_ERR_OK) {
@@ -96,7 +165,8 @@ class Recetas extends DataBase {
 
             // Intentar mover el archivo subido a la carpeta de destino
             if (move_uploaded_file($_FILES['Imagen']['tmp_name'], $targetFile)) {
-                $sql = "INSERT INTO receta (NombreReceta, Imagen, TiempoPreparacion, FechaRegistro, FechaActualizacion, Eliminado, ID_Categoria) 
+                // Modificación: añadir ID_Usuario a la consulta de inserción
+                $sql = "INSERT INTO receta (NombreReceta, Imagen, TiempoPreparacion, FechaRegistro, FechaActualizacion, Eliminado, ID_Categoria, ID_Usuario) 
                         VALUES (
                             '$nombreReceta',
                             '$targetFile',
@@ -104,7 +174,8 @@ class Recetas extends DataBase {
                             NOW(),
                             NOW(),
                             0,
-                            $idCategoria
+                            $idCategoria,
+                            $idUsuario
                         )";
 
                 if ($this->conexion->query($sql)) {
@@ -169,7 +240,6 @@ class Recetas extends DataBase {
                         }
                     }
 
-
                     // Respuesta de éxito
                     $this->response['status'] = "success";
                     $this->response['message'] = "Receta agregada con éxito";
@@ -189,9 +259,6 @@ class Recetas extends DataBase {
     $this->conexion->close();
     return json_encode($this->response);
 }
-
-
-
 
 
 public function edit($jsonOBJ) {
@@ -248,12 +315,13 @@ public function edit($jsonOBJ) {
         if ($this->conexion->query($sql)) {
             // Actualización de Ingredientes
             $ingredientes = json_decode($jsonOBJ->Ingredientes, true);
+            error_log(print_r($ingredientes, true)); 
             $ingredientesExistentes = []; // Para llevar el control de los ingredientes procesados
 
             if (!empty($ingredientes) && is_array($ingredientes)) {
                 foreach ($ingredientes as $ingrediente) {
-                    $idIngrediente = $ingrediente['ID_Ingrediente'];
-                    $nombreIngrediente = $this->conexion->real_escape_string($ingrediente['NombreIngrediente']);
+                    $idIngrediente = isset($ingrediente['ID_Ingrediente']) ? $ingrediente['ID_Ingrediente'] : null;
+                    $nombreIngrediente = $this->conexion->real_escape_string($ingrediente['Nombre']);
 
                     // Si el ingrediente tiene ID, intentamos actualizarlo
                     if (!empty($idIngrediente)) {
@@ -272,9 +340,15 @@ public function edit($jsonOBJ) {
                 }
 
                 // Eliminar los ingredientes que no están en la lista de ingredientes actuales
-                $ingredientesExistentesStr = implode(',', $ingredientesExistentes);
-                $sqlDeleteIngredientes = "DELETE FROM recetaIngrediente WHERE ID_Receta = {$jsonOBJ->id} AND ID_Ingrediente NOT IN ($ingredientesExistentesStr)";
-                $this->conexion->query($sqlDeleteIngredientes);
+                if (!empty($ingredientesExistentes)) {
+                    $ingredientesExistentesStr = implode(',', $ingredientesExistentes);
+                    $sqlDeleteIngredientes = "DELETE FROM recetaIngrediente WHERE ID_Receta = {$jsonOBJ->id} AND ID_Ingrediente NOT IN ($ingredientesExistentesStr)";
+                    $this->conexion->query($sqlDeleteIngredientes);
+                } else {
+                    // Si no hay ingredientes existentes, eliminamos todos los de la receta
+                    $sqlDeleteIngredientes = "DELETE FROM recetaIngrediente WHERE ID_Receta = {$jsonOBJ->id}";
+                    $this->conexion->query($sqlDeleteIngredientes);
+                }
             }
 
             // Actualización de Instrucciones
@@ -283,8 +357,8 @@ public function edit($jsonOBJ) {
 
             if (!empty($instrucciones) && is_array($instrucciones)) {
                 foreach ($instrucciones as $instruccion) {
-                    $idInstruccion = $instruccion['ID_Instruccion'];
-                    $numeroPaso = (int) $instruccion['NumeroPaso'];
+                    $idInstruccion = isset($instruccion['ID_Instruccion']) ? $instruccion['ID_Instruccion'] : null;
+                    $numeroPaso = (int)$instruccion['NumeroPaso'];
                     $descripcion = $this->conexion->real_escape_string($instruccion['Descripcion']);
 
                     // Si la instrucción tiene ID, intentamos actualizarla
@@ -304,9 +378,15 @@ public function edit($jsonOBJ) {
                 }
 
                 // Eliminar las instrucciones que no están en la lista de instrucciones actuales
-                $instruccionesExistentesStr = implode(',', $instruccionesExistentes);
-                $sqlDeleteInstrucciones = "DELETE FROM recetaInstruccion WHERE ID_Receta = {$jsonOBJ->id} AND ID_Instruccion NOT IN ($instruccionesExistentesStr)";
-                $this->conexion->query($sqlDeleteInstrucciones);
+                if (!empty($instruccionesExistentes)) {
+                    $instruccionesExistentesStr = implode(',', $instruccionesExistentes);
+                    $sqlDeleteInstrucciones = "DELETE FROM recetaInstruccion WHERE ID_Receta = {$jsonOBJ->id} AND ID_Instruccion NOT IN ($instruccionesExistentesStr)";
+                    $this->conexion->query($sqlDeleteInstrucciones);
+                } else {
+                    // Si no hay instrucciones existentes, eliminamos todas de la receta
+                    $sqlDeleteInstrucciones = "DELETE FROM recetaInstruccion WHERE ID_Receta = {$jsonOBJ->id}";
+                    $this->conexion->query($sqlDeleteInstrucciones);
+                }
             }
 
             // Establecer el estado de éxito
@@ -323,6 +403,7 @@ public function edit($jsonOBJ) {
 
     return json_encode($this->response);
 }
+
 
 
 
@@ -505,24 +586,67 @@ public function search($search) {
 
     // Obtener una receta por ID_Receta
     public function single($id) {
-        if(isset($id)) {
-            if ($result = $this->conexion->query("SELECT * FROM receta WHERE ID_Receta = {$id}")) {
+        if (isset($id)) {
+            // Consulta principal para obtener los detalles de la receta
+            $sql = "SELECT * FROM receta WHERE ID_Receta = {$id}";
+    
+            if ($result = $this->conexion->query($sql)) {
                 $row = $result->fetch_assoc();
-
-                if(!is_null($row)) {
-                    foreach($row as $key => $value) {
+    
+                if (!is_null($row)) {
+                    // Agregar los detalles principales de la receta a la respuesta
+                    foreach ($row as $key => $value) {
                         $this->response[$key] = utf8_encode($value);
                     }
+    
+                    // Consulta adicional para obtener los ingredientes
+                    $sql_ingredientes = "SELECT i.ID_Ingrediente, i.NombreIngrediente 
+                                         FROM recetaIngrediente ri 
+                                         JOIN ingrediente i ON ri.ID_Ingrediente = i.ID_Ingrediente 
+                                         WHERE ri.ID_Receta = {$id}";
+                    $result_ingredientes = $this->conexion->query($sql_ingredientes);
+                    $ingredientes = [];
+                    while ($row_ingrediente = $result_ingredientes->fetch_assoc()) {
+                        $ingredientes[] = [
+                            'ID_Ingrediente' => $row_ingrediente['ID_Ingrediente'], // Agregar ID_Ingrediente
+                            'Nombre' => utf8_encode($row_ingrediente['NombreIngrediente']) // Mantener Nombre
+                        ];
+                    }
+                    $this->response['ingredientes'] = $ingredientes;
+    
+                    // Consulta adicional para obtener las instrucciones
+                    $sql_instrucciones = "SELECT instr.NumeroPaso, instr.Descripcion 
+                                          FROM recetaInstruccion ri 
+                                          JOIN instruccion instr ON ri.ID_Instruccion = instr.ID_Instruccion 
+                                          WHERE ri.ID_Receta = {$id} 
+                                          ORDER BY instr.NumeroPaso ASC";
+                    $result_instrucciones = $this->conexion->query($sql_instrucciones);
+                    $instrucciones = [];
+                    while ($row_instruccion = $result_instrucciones->fetch_assoc()) {
+                        $instrucciones[] = [
+                            'Paso' => $row_instruccion['NumeroPaso'],
+                            'Descripcion' => utf8_encode($row_instruccion['Descripcion'])
+                        ];
+                    }
+                    $this->response['instrucciones'] = $instrucciones;
+    
+                    // Liberar resultados
+                    $result_ingredientes->free();
+                    $result_instrucciones->free();
                 }
-
+    
                 $result->free();
             } else {
-                die('Query Error: '.mysqli_error($this->conexion));
+                die('Query Error: ' . mysqli_error($this->conexion));
             }
-
+    
             $this->conexion->close();
         }
+    
+        return json_encode($this->response);
     }
+    
+    
 
     public function filter($category, $maxTime) {
         // Unir receta con categoria para obtener el nombre de la categoría

@@ -33,6 +33,10 @@ $(document).ready(function () {
                                     <h3 class="card-title">${receta.NombreReceta}</h3>
                                     <p class="card-text">Tiempo de preparación: ${receta.TiempoPreparacion} minutos</p>
                                     <p class="card-text">Categoría: ${receta.NombreCategoria}</p>
+                                    <div style="position: absolute; bottom: 15px; right: 15px;">
+                                        <i class="far fa-heart favorito-icon" title="Favorito" style="cursor: pointer; color: #ff6b6b; font-size: 1.5em;"></i>
+                                        <i class="fas fa-share" title="Compartir" style="cursor: pointer; color: #6c757d; font-size: 1.5em; margin-left: 10px;"></i>
+                                    </div>
                                 </div>
                             </div>
                         `;
@@ -47,6 +51,15 @@ $(document).ready(function () {
   // Capturar clic en la tarjeta de receta
   $(document).on("click", ".card-recipe", function () {
     const recipeId = $(this).data("id");
+
+    const target = $(event.target);
+    if (
+      target.closest(".fa-heart, .fa-share")
+        .length
+    ) {
+      // Detiene la propagación si se hizo clic en los botones o iconos
+      return;
+    }
 
     // Llamada AJAX para obtener los detalles de la receta específica
     $.ajax({
@@ -279,10 +292,25 @@ $(document).ready(function () {
     });
   });
 
-  $(document).ready(function () {
-    // Evento para abrir la página agregar-receta.html cuando se haga clic en el botón "Agregar Receta"
-    $("#addRecipeBtn").click(function () {
-      window.location.href = "agregar-receta.html";
+  $("#addRecipeBtn").click(function () {
+    $.ajax({
+      url: "./backend/getUser.php",
+      method: "GET",
+      dataType: "json",
+      success: function (data) {
+        if (data.nombreUsuario) {
+          // Si el usuario está logueado, redirige a agregar-receta.html
+          window.location.href = "agregar-receta.html";
+        } else {
+          // Si el usuario no está logueado, abre el modal de inicio de sesión
+          if (confirm("Debes iniciar sesión para agregar una receta. ¿Quieres iniciar sesión ahora?")) {
+            $("#loginModal").show();
+          }
+        }
+      },
+      error: function () {
+        console.error("Error al verificar el estado de inicio de sesión");
+      },
     });
   });
 
@@ -341,6 +369,7 @@ $(document).ready(function () {
     listarRecetas();
   });
 });
+
 
 // usuarios
 $(document).ready(function () {
@@ -471,4 +500,64 @@ $(document).ready(function () {
       },
     });
   });
+
+  $(document).on('click', '.favorito-icon', function() {
+    const recetaId = $(this).closest('.card-recipe').data('id'); // Obtiene el ID de la receta
+    const $icono = $(this);
+    console.log("ID de la receta:", recetaId); // Verifica el ID de la receta
+
+    // Verificar el estado de inicio de sesión
+    $.ajax({
+        url: "./backend/getUser.php",
+        method: "GET",
+        dataType: "json",
+        success: function(data) {
+            console.log("Datos de usuario:", data); // Muestra los datos devueltos por la verificación de usuario
+
+            if (data.nombreUsuario) {
+                // Usuario está logueado, proceder a agregar o eliminar favorito
+                $.ajax({
+                    url: "./backend/usuario-favorito.php", // Este es el archivo que se invoca
+                    method: "POST",
+                    data: {
+                        recetaId: recetaId
+                    },
+                    dataType: "json",
+                    success: function(data) {
+                        console.log("Respuesta de agregar/eliminar favorito:", data); // Muestra la respuesta de la acción de favorito
+
+                        if (data.success) {
+                            // Cambiar el icono según el estado del favorito
+                            if (data.action === "added") {
+                                $icono.removeClass("far").addClass("fas"); // Cambia a icono de favorito
+                                console.log("Receta añadida a favoritos."); // Mensaje de éxito
+                            } else {
+                                $icono.removeClass("fas").addClass("far"); // Cambia a icono no favorito
+                                console.log("Receta eliminada de favoritos."); // Mensaje de éxito
+                            }
+                        } else {
+                            alert("Error al procesar la solicitud. Intente de nuevo.");
+                            console.error("Error en la respuesta:", data.message); // Mensaje de error
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Error en la petición AJAX:", status, error); // Mensaje de error de la petición
+                    }
+                });
+            } else {
+                // Si el usuario no está logueado, abre el modal de inicio de sesión
+                console.log("Usuario no autenticado."); // Mensaje para usuario no autenticado
+                if (confirm("Debes iniciar sesión para marcar esta receta como favorita. ¿Quieres iniciar sesión ahora?")) {
+                    $("#loginModal").show();
+                }
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error("Error al verificar el estado de inicio de sesión:", status, error); // Mensaje de error de la petición
+        },
+    });
+});
+
+
+
 });

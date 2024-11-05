@@ -8,7 +8,7 @@ abstract class DataBase {
         $this->conexion = @mysqli_connect(
             'localhost',
             'root',
-            '',
+            '19Molletes*eb',
             $database
         );
     
