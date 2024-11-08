@@ -8,7 +8,11 @@ abstract class DataBase {
         $this->conexion = @mysqli_connect(
             'localhost',
             'root',
+<<<<<<< HEAD
             '12345678a',
+=======
+            '',
+>>>>>>> e08e0c85825f0d6c732b20a89e5c1b73823a7667
             $database
         );
     

@@ -1,17 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>Ma Reccette Facile</title>
 
-    <link rel="icon" href="http://localhost/tecwebCarlos/actividades/MaReccetteFacileV2/facile.jpeg" type="image/jpeg">
+    <link
+      rel="icon"
+      href="http://localhost/tecwebCarlos/actividades/MaReccetteFacileV2/facile.jpeg"
+      type="image/jpeg"
+    />
 
     <!-- BOOTSTRAP 4  -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
@@ -47,13 +54,20 @@
       }
     </style>
   </head>
-  
-  <body>
 
+  <body>
     <!-- BARRA DE NAVEGACIÓN  -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
       <a class="navbar-brand" href=".">Ma Reccette Facile</a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
         <span class="navbar-toggler-icon"></span>
       </button>
 
@@ -61,20 +75,44 @@
         <ul class="navbar-nav ml-auto">
           <!-- Ícono que despliega el submenú -->
           <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="userMenu" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  <!-- Ícono de usuario personalizado -->
-                  <img src="https://raw.githubusercontent.com/Javs-27AM/Golden-Mart/master/NetBeans/GoldenMart/src/imagenes/user.png" alt="Ícono de usuario" style="width: 30px; height: 30px;">
-              </a>
-              <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userMenu">
-                  <a class="dropdown-item" href="#">Iniciar Sesión</a>
-                  <a class="dropdown-item" href="#">Crear Cuenta</a>
-                  <a class="dropdown-item" href="#">Cerrar Sesión</a>
-              </div>
+            <a
+              class="nav-link dropdown-toggle"
+              href="#"
+              id="userMenu"
+              role="button"
+              data-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false"
+            >
+              <!-- Ícono de usuario personalizado -->
+              <img
+                src="https://raw.githubusercontent.com/Javs-27AM/Golden-Mart/master/NetBeans/GoldenMart/src/imagenes/user.png"
+                alt="Ícono de usuario"
+                style="width: 30px; height: 30px"
+              />
+            </a>
+            <div
+              class="dropdown-menu dropdown-menu-right"
+              aria-labelledby="userMenu"
+            >
+              <a class="dropdown-item" href="#">Iniciar Sesión</a>
+              <a class="dropdown-item" href="#">Crear Cuenta</a>
+              <a class="dropdown-item" href="#">Cerrar Sesión</a>
+            </div>
           </li>
-      </ul>
+        </ul>
         <form class="form-inline my-2 my-lg-0">
-          <input class="form-control mr-sm-2" name="search" id="search" type="search" placeholder="Nombre Receta o Categoría" aria-label="Search">
-          <button class="btn btn-success my-2 my-sm-0" type="submit">Buscar</button>
+          <input
+            class="form-control mr-sm-2"
+            name="search"
+            id="search"
+            type="search"
+            placeholder="Nombre Receta o Categoría"
+            aria-label="Search"
+          />
+          <button class="btn btn-success my-2 my-sm-0" type="submit">
+            Buscar
+          </button>
         </form>
       </div>
     </nav>
@@ -90,20 +128,38 @@
               <form id="filters-form">
                 <div class="form-group">
                   <label for="filter-category">Categoría:</label>
-                  <select class="form-control" id="filter-category" name="filter-category">
+                  <select
+                    class="form-control"
+                    id="filter-category"
+                    name="filter-category"
+                  >
                     <option value="">Seleccionar</option>
                     <option value="Postres">Postres</option>
-                    <option value="Platos Principales">Platos Principales</option>
+                    <option value="Platos Principales">
+                      Platos Principales
+                    </option>
                     <option value="Ensaladas">Ensaladas</option>
                   </select>
                 </div>
 
                 <div class="form-group">
                   <label for="filter-time">Tiempo máximo (minutos):</label>
-                  <input class="form-control" type="number" id="filter-time" name="filter-time" placeholder="Ejemplo: 30">
+                  <input
+                    class="form-control"
+                    type="number"
+                    id="filter-time"
+                    name="filter-time"
+                    placeholder="Ejemplo: 30"
+                  />
                 </div>
 
-                <button class="btn btn-secondary btn-block" type="button" id="apply-filters">Aplicar Filtros</button>
+                <button
+                  class="btn btn-secondary btn-block"
+                  type="button"
+                  id="apply-filters"
+                >
+                  Aplicar Filtros
+                </button>
               </form>
             </div>
           </div>
@@ -113,7 +169,9 @@
         <div class="col-md-3 col-sm-3 table-container">
           <!-- Botón 'Agregar Receta' alineado a la derecha -->
           <div class="add-recipe-btn">
-            <button class="btn btn-primary mb-3" id="addRecipeBtn">Agregar Receta</button>
+            <button class="btn btn-primary mb-3" id="addRecipeBtn">
+              Agregar Receta
+            </button>
           </div>
 
           <!-- Resultados de recetas -->
@@ -140,7 +198,11 @@
 
     <div id="recetaFormContainer"></div>
 
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script
+      src="https://code.jquery.com/jquery-3.3.1.min.js"
+      integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+      crossorigin="anonymous"
+    ></script>
     <!-- Lógica del Frontend -->
     <script src="app.js"></script>
   </body>
