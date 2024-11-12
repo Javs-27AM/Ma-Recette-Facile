@@ -15,7 +15,46 @@ $(document).ready(function () {
   let JsonString = JSON.stringify(baseJSON, null, 2);
   $("#description").val(JsonString);
   $("#receta-result").hide();
-  listarRecetas();
+  //listarRecetas();
+  listarRecetasUser();
+
+  function listarRecetasUser() {
+    $.ajax({
+      url: "./backend/receta-listUser.php", // Ruta al nuevo archivo PHP
+      type: "GET",
+      success: function (response) {
+        console.log(response);
+        const recetas = JSON.parse(response);
+  
+        if (Object.keys(recetas).length > 0) {
+          let template = "";
+  
+          recetas.forEach((receta) => {
+            template += `
+              <div class="card-recipe" data-id="${receta.ID_Receta}" style="position: relative;">
+                <img src="${receta.Imagen}" alt="Imagen de ${receta.NombreReceta}" class="card-img">
+                <div class="card-body">
+                  <h3 class="card-title">${receta.NombreReceta}</h3>
+                  <p class="card-text">Tiempo de preparación: ${receta.TiempoPreparacion} minutos</p>
+                  <p class="card-text">Categoría: ${receta.NombreCategoria}</p>
+                  <button class="receta-edit btn btn-warning">Editar</button>
+                  <button class="receta-delete btn btn-danger">Eliminar</button>
+                </div>
+              </div>
+            `;
+          });
+  
+          $("#receta").html(template);
+        } else {
+          $("#receta").html("<p>No tienes recetas.</p>");
+        }
+      },
+      error: function (error) {
+        console.error("Error al obtener las recetas:", error);
+      }
+    });
+  }
+  
 
   function listarRecetas() {
     $.ajax({
@@ -100,7 +139,8 @@ $(document).ready(function () {
 
   $("#receta-form").submit((e) => {
     e.preventDefault();
-    console.log("ID de Usuario:", $("#usuarioId").val());
+    console.log("ID de Usuario:", $("#usuarioId").val()); 
+    
 
     let formData = new FormData();
     formData.append("id", $("#recetaId").val());
@@ -109,25 +149,58 @@ $(document).ready(function () {
     formData.append("TiempoPreparacion", $("#TiempoPreparacion").val());
     formData.append("ID_Categoria", $("#Categoria").val());
     formData.append("ID_Usuario", $("#usuarioId").val()); // Agregar el ID del usuario
-    console.log("ID de Receta:", $("#recetaId").val());
+    console.log("ID de Receta:", $("#recetaId").val()); 
     // Obtener los ingredientes
     const ingredientes = [];
-    $("#ingredientes-section .ingrediente-row input").each(function () {
-      ingredientes.push({ ID_Ingrediente: $(this).val() });
-    });
-    formData.append("Ingredientes", JSON.stringify(ingredientes)); // Convertir a JSON
+$('#ingredientes-section .ingrediente-row').each(function() {
+    const nombreIngrediente = $(this).find('input').val();  // Obtener el nombre del ingrediente
+    const idIngrediente = $(this).data('id');  // Obtener el ID del ingrediente, si existe
 
-    console.log("Ingredientes:", ingredientes); // Log de los ingredientes
+    // Verificar si el ingrediente tiene un ID (es decir, es un ingrediente editado)
+    if (idIngrediente) {
+        // Si existe el ID, agregamos el ID y el Nombre
+        ingredientes.push({ ID_Ingrediente: idIngrediente, Nombre: nombreIngrediente });
+    } else {
+        // Si no existe el ID, es un ingrediente nuevo, solo se agrega el nombre
+        ingredientes.push({ Nombre: nombreIngrediente });
+    }
+});
+formData.append('Ingredientes', JSON.stringify(ingredientes)); // Convertir a JSON
+
+console.log('Ingredientes:', ingredientes);// Log de los ingredientes
 
     // Obtener las instrucciones
-    const instrucciones = [];
-    $("#instrucciones-section .instruccion-row textarea").each(function () {
-      instrucciones.push({ Instruccion: $(this).val() });
-    });
+        const instrucciones = [];
+
+    if (edit) {
+        // Código para "EDIT TRUE"
+        $('#instrucciones-section .instruccion-row').each(function() {
+            const descripcionInstruccion = $(this).find('textarea').val();  // Obtener la descripción de la instrucción
+            const idInstruccion = $(this).data('id');  // Obtener el ID de la instrucción, si existe
+
+            // Verificar si la instrucción tiene un ID (es decir, es una instrucción editada)
+            if (idInstruccion) {
+                // Si existe el ID, agregamos el ID y la Descripción
+                instrucciones.push({ ID_Instruccion: idInstruccion, Descripcion: descripcionInstruccion });
+            } else {
+                // Si no existe el ID, es una instrucción nueva, solo se agrega la descripción
+                instrucciones.push({ Descripcion: descripcionInstruccion });
+            }
+        });
+    } else {
+        // Código para "EDIT FALSE"
+        $("#instrucciones-section .instruccion-row textarea").each(function() {
+            instrucciones.push({ Instruccion: $(this).val() });
+        });
+    }
+
+    // Aquí puedes usar la variable `instrucciones` según sea necesario
+    console.log(instrucciones);
+
+
     formData.append("Instrucciones", JSON.stringify(instrucciones)); // Convertir a JSON
     console.log("Instrucciones:", instrucciones);
-    const url =
-      edit === false ? "./backend/receta-add.php" : "./backend/receta-edit.php";
+    const url = edit === false ? "./backend/receta-add.php" : "./backend/receta-edit.php";
 
     $.ajax({
       url: url,
@@ -151,16 +224,32 @@ $(document).ready(function () {
         $("#recetaId").val("");
         $("#usuarioId").val(""); // Limpiar el campo del ID del usuario
         // Reiniciar los ingredientes
-        $("#ingredientes-section").empty(); // Eliminar todos los elementos de ingredientes
-        // Reiniciar instrucciones
-        $("#instrucciones-section").empty(); // Eliminar todos los elementos de instrucciones
+        $("#ingredientes-section .ingrediente-row").each(function (index) {
+          if (index > 0) { // Eliminar filas de ingredientes adicionales
+            $(this).remove();
+          } else {
+            $(this).find("input").val("");
+            $(this).css("margin-bottom", "10px");  // Vaciar el primer campo de ingrediente
+          }
+        });
+    
+        // Vaciar las instrucciones y dejar solo una
+        $("#instrucciones-section .instruccion-row").each(function (index) {
+          if (index > 0) { // Eliminar filas de instrucciones adicionales
+            $(this).remove();
+          } else {
+            $(this).find("textarea").val(""); // Vaciar el primer campo de instrucción
+            $(this).css("margin-bottom", "10px"); 
+          }
+        }); // Eliminar todos los elementos de instrucciones
 
         $("#receta-result").show();
         $("#container").html(template_bar);
-        listarRecetas();
+        listarRecetasUser();
       },
     });
-  });
+});
+
 
   $(document).on("click", ".receta-edit", function (e) {
     if (confirm("¿Realmente deseas editar la receta?")) {
@@ -202,36 +291,42 @@ $(document).ready(function () {
 
         // Poblar ingredientes
         // Asegúrate de usar la clave correcta 'ingredientes' (con minúscula)
+        console.log("Instrucciones:", receta.instrucciones);
+
         $("#ingredientes-section").empty();
         if (receta.ingredientes && Array.isArray(receta.ingredientes)) {
           receta.ingredientes.forEach((ingrediente) => {
             // Ya no hay necesidad de una variable para cantidad
             $("#ingredientes-section").append(`
-              <div class="ingrediente-row">
+              <div class="ingrediente-row" data-id="${ingrediente.ID_Ingrediente}">
                   <input type="text" value="${ingrediente.Nombre}" placeholder="Ingrediente" class="form-control" required />
-                  
               </div>
             `);
+            $("#ingredientes-section .ingrediente-row").last().css("margin-bottom", "10px"); // Agregar margen debajo
+    
           });
         } else {
           console.warn("No hay ingredientes disponibles o no es un array.");
         }
 
         // Asegúrate de usar la clave correcta 'instrucciones' (con minúscula)
-        $("#instrucciones-section").empty();
+        $("#instrucciones-section").empty(); // Limpiar las instrucciones antes de agregar las nuevas
         if (receta.instrucciones && Array.isArray(receta.instrucciones)) {
           receta.instrucciones.forEach((instruccion) => {
             $("#instrucciones-section").append(`
-            <div class="instruccion-row">
+              <div class="instruccion-row" data-id="${instruccion.ID_Instruccion}">
                 <textarea class="form-control" placeholder="Instrucción" required>${instruccion.Descripcion}</textarea>
-            </div>
-        `);
+              </div>
+            `);
+            
+            // Agregar espacio entre las instrucciones
+            $("#instrucciones-section .instruccion-row").last().css("margin-bottom", "10px"); // Agregar margen debajo
           });
         } else {
           console.warn("No hay instrucciones disponibles o no es un array.");
-        }
+        } 
         edit = true;
-        $('button[type="submit"]').text("Editar Receta");
+        $('button[type="submit"]').text('Editar Receta');
       });
     }
   });
@@ -255,65 +350,46 @@ $(document).ready(function () {
     }
   });
 
-  $(document).on("click", ".receta-item", (e) => {
-    e.preventDefault();
-
-    if (confirm("¿Realmente deseas editar la receta?")) {
-      const element = $(this)[0].activeElement.parentElement.parentElement; // Encuentra el elemento padre
-      const id = $(element).attr("recetaId"); // Obtén el ID de la receta
-
-      //console.log('ID del Receta:', id);
-
-      $.post("./backend/receta-single.php", { id }, (response) => {
-        //console.log('Respuesta del servidor:', response);
-        // Convierte a objeto el JSON obtenido
-        let receta = JSON.parse(response);
-        //console.log('Receta:', receta);
-
-        // Inserta los datos en los campos correspondientes
-        $("#NombreReceta").val(receta.NombreReceta);
-        $("#TiempoPreparacion").val(receta.TiempoPreparacion);
-        $("#Categoria").val(receta.ID_Categoria);
-
-        // Configura el ID de la receta en un campo oculto para su uso posterior
-        $("#recetaId").val(receta.ID_Receta);
-        ///console.log('ID del receta guardado para actualización:', receta.ID_Receta); // Asegúrate de que este campo exista en tu HTML
-
-        // Establece la bandera de edición en true
-        edit = true;
-        // console.log('Modo de edición activado:', edit);
-
-        $('button[type="submit"]').text("Editar Receta");
-      });
-    }
-  });
-
-  document
-    .getElementById("cancelarButton")
-    .addEventListener("click", function () {
-      // Aquí puedes añadir la lógica para cerrar el formulario o realizar otra acción
-      $("#NombreReceta").val("");
-      $("#Imagen").val("");
-      $("#TiempoPreparacion").val("");
-      $("#Categoria").val("0");
-      $("#recetaId").val(""); // Reiniciar el select
-      $("#ingredientes-section").val("");
-      $("#instrucciones-section").val("");
-      // O si estás usando un modal, podrías cerrarlo así:
-      // $('#miModal').modal('hide');
+  document.getElementById("cancelarButton").addEventListener("click", function () {
+    // Limpiar el formulario
+    $("#NombreReceta").val("");
+    $("#Imagen").val("");
+    $("#TiempoPreparacion").val("");
+    $("#Categoria").val("0");
+    $("#recetaId").val("");
+    $("#usuarioId").val(""); // Limpiar el campo del ID del usuario
+    // Reiniciar los ingredientes
+    $("#ingredientes-section .ingrediente-row").each(function (index) {
+      if (index > 0) { // Eliminar filas de ingredientes adicionales
+        $(this).remove();
+      } else {
+        $(this).find("input").val("");
+        $(this).css("margin-bottom", "10px");  // Vaciar el primer campo de ingrediente
+      }
     });
 
-  $(document).ready(function () {
-    // Evento para abrir la página agregar-receta.html cuando se haga clic en el botón "Agregar Receta"
-    $("#addRecipeBtn").click(function () {
-      window.location.href = "agregar-receta.html";
-    });
+    // Vaciar las instrucciones y dejar solo una
+    $("#instrucciones-section .instruccion-row").each(function (index) {
+      if (index > 0) { // Eliminar filas de instrucciones adicionales
+        $(this).remove();
+      } else {
+        $(this).find("textarea").val(""); // Vaciar el primer campo de instrucción
+        $(this).css("margin-bottom", "10px"); 
+      }
+    }); // Eliminar todos los elementos de instrucciones
+
+
+    // Restaurar el estado del botón "Agregar Receta"
+    let agregarRecetaBtn = $("#receta-form button[type='submit']");
+    agregarRecetaBtn.prop("disabled", false); // Asegurarse de que esté habilitado
+    agregarRecetaBtn.text("Agregar Receta"); // Restaurar el texto del botón
   });
+
+
+  
 
   // Agregar ingredientes
-  document
-    .getElementById("add-ingrediente-btn")
-    .addEventListener("click", function () {
+  document.getElementById("add-ingrediente-btn").addEventListener("click", function () {
       const ingredientesSection = document.getElementById(
         "ingredientes-section"
       );
@@ -325,9 +401,7 @@ $(document).ready(function () {
     });
 
   // Agregar instrucciones
-  document
-    .getElementById("add-instruccion-btn")
-    .addEventListener("click", function () {
+  document.getElementById("add-instruccion-btn").addEventListener("click", function () {
       const instruccionesSection = document.getElementById(
         "instrucciones-section"
       );
@@ -338,41 +412,40 @@ $(document).ready(function () {
       instruccionesSection.appendChild(newInstructionRow);
     });
 
-  $("#agregarRecetaBtn").click(function () {
-    if ($(this).text() === "Agregar Receta") {
-      $("#receta").hide(); // Oculta los mosaicos de recetas
-      $(".col-md-5").show(); // Muestra el contenedor del formulario
-
-      // Obtener el ID del usuario y llenarlo en el campo oculto
-      $.ajax({
-        url: "./backend/getUser.php",
-        method: "GET",
-        dataType: "json",
-        success: function (data) {
-          console.log("Datos recibidos:", data); // Agrega esta línea para inspeccionar la respuesta
-          if (data.idUsuario) {
-            $("#usuarioId").val(data.idUsuario);
-            console.log("ID del usuario llenado:", $("#usuarioId").val());
-          } else {
-            console.error("No se pudo obtener el ID del usuario.");
-          }
-        },
-        error: function (jqXHR, textStatus, errorThrown) {
-          console.error(
-            "Error al obtener el ID del usuario:",
-            textStatus,
-            errorThrown
-          ); // Detalle del error
-        },
-      });
-
-      $(this).text("Regresar"); // Cambia el texto del botón a "Regresar"
-    } else {
-      $("#receta").show(); // Muestra los mosaicos de recetas
-      $(".col-md-5").hide(); // Oculta el contenedor del formulario
-      $(this).text("Agregar Receta"); // Cambia el texto del botón a "Agregar Receta"
-    }
-  });
+    $("#agregarRecetaBtn").click(function () {
+      if ($(this).text() === "Agregar Receta") {
+        $("#receta").hide(); // Oculta los mosaicos de recetas
+        $(".col-md-5").show(); // Muestra el contenedor del formulario
+    
+        // Obtener el ID del usuario y llenarlo en el campo oculto
+        $.ajax({
+          url: "./backend/getUser.php",
+          method: "GET",
+          dataType: "json",
+          success: function (data) {
+            console.log("Datos recibidos:", data); // Agrega esta línea para inspeccionar la respuesta
+            if (data.idUsuario) {
+              $("#usuarioId").val(data.idUsuario);
+              console.log("ID del usuario llenado:", $("#usuarioId").val());
+            } else {
+              console.error("No se pudo obtener el ID del usuario.");
+            }
+          },
+          error: function (jqXHR, textStatus, errorThrown) {
+            console.error("Error al obtener el ID del usuario:", textStatus, errorThrown); // Detalle del error
+          },
+        });
+    
+        $(this).text("Regresar"); // Cambia el texto del botón a "Regresar"
+      } else {
+        //listarRecetasUser();
+        $("#receta").show(); // Muestra los mosaicos de recetas
+        $(".col-md-5").hide(); // Oculta el contenedor del formulario
+        $("#cancelarButton").trigger("click"); 
+        $(this).text("Agregar Receta"); // Cambia el texto del botón a "Agregar Receta"
+      }
+    });
+    
 
   $(document).on("click", ".card-recipe", function () {
     const recipeId = $(this).data("id"); // Obtiene el ID de la receta seleccionada
@@ -401,7 +474,7 @@ $(document).ready(function () {
           console.error("Error al parsear la respuesta JSON:", error); // Error de JSON
           return;
         }
-
+        console.log("Instrucciones originales:", receta.instrucciones); 
         // Generar el contenido del modal con la receta recibida
         const modalContent = `
                     <h2>${receta.NombreReceta}</h2>
@@ -425,17 +498,17 @@ $(document).ready(function () {
                           .join("")}
                     </ul>
                     <h4>Instrucciones:</h4>
-                    <ol>
-                        ${receta.instrucciones
-                          .map(
-                            (instruccion, index) =>
-                              `<li>Paso ${index + 1}: ${
-                                instruccion.Descripcion
-                              }</li>`
-                          )
-                          .join("")}
-                    </ol>
+                    <ul>
+                    
+                    ${receta.instrucciones
+                      .map((instruccion) => {
+                        return `<li>Paso ${instruccion.NumeroPaso}: ${instruccion.Descripcion}</li>`;
+                      })
+                      .join("")}
+                    
+                    </ul>
                 `;
+                console.log("Instrucciones originales saliendo:", receta.instrucciones); 
         console.log("Contenido del modal generado:", modalContent); // Confirmar el HTML generado para el modal
 
         // Inserta el contenido en el modal y lo muestra
@@ -478,6 +551,7 @@ $(document).ready(function () {
 
         $("#usuarioId").val(data.idUsuario);
         console.log("ID del usuario llenado:", $("#usuarioId").val());
+
       } else {
         $("#userMenuItems").append(
           '<a class="dropdown-item" href="#" id="openLogin">Iniciar Sesión</a>'
@@ -580,9 +654,7 @@ $(document).ready(function () {
       method: "POST",
       success: function (data) {
         if (data) {
-          alert("Sesión cerrada");
-          window.location.href = "index.html";
-          //location.reload(); // Recargar la página
+          location.reload(); // Recargar la página
         } /* else {
         //location.reload();
         //alert("session cerrada");

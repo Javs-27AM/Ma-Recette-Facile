@@ -2,9 +2,9 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Ma Recette Facile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    
+    <title>Ma Recette Facile</title>
 
     <link
       rel="icon"
@@ -22,7 +22,6 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
     />
-    
 
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
@@ -48,6 +47,26 @@
         padding: 20px;
       }
 
+      /* Para dispositivos móviles */
+      @media (max-width: 767px) {
+        #receta {
+          grid-template-columns: repeat(
+            auto-fill,
+            minmax(150px, 1fr)
+          ); /* Menor tamaño de las tarjetas */
+        }
+      }
+
+      /* Para pantallas muy grandes */
+      @media (min-width: 1200px) {
+        #receta {
+          grid-template-columns: repeat(
+            auto-fill,
+            minmax(300px, 1fr)
+          ); /* Aumentar tamaño de las tarjetas en pantallas grandes */
+        }
+      }
+
       /* Tarjeta de receta */
       .card-recipe {
         background-color: #fff;
@@ -67,8 +86,16 @@
       /* Imagen dentro de la tarjeta */
       .card-img {
         width: 100%;
-        height: 180px;
+        height: auto;
         object-fit: cover;
+      }
+      @media (max-width: 767px) {
+        .navbar-nav {
+          text-align: center; /* Centra los elementos de la barra de navegación en dispositivos pequeños */
+        }
+        .navbar-toggler {
+          background-color: #fff; /* Cambia el color del icono del menú en pantallas pequeñas */
+        }
       }
 
       /* Contenido dentro de la tarjeta */
@@ -106,9 +133,14 @@
         margin: 15% auto;
         padding: 20px;
         border: 1px solid #888;
-        width: 40%;
+        width: 50%;
         justify-content: center;
         align-items: center;
+      }
+      @media (max-width: 767px) {
+        .modal-content {
+          width: 90%; /* Modal más grande en dispositivos pequeños */
+        }
       }
 
       .close {
@@ -126,7 +158,7 @@
 
   <body>
     <!-- BARRA DE NAVEGACIÓN  -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark ">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
       <a class="navbar-brand" href=".">Ma Reccette Facile</a>
       <button
         class="navbar-toggler"
@@ -253,12 +285,10 @@
         <div class="col-md-9">
           <!-- Botón 'Agregar Receta' -->
           <div class="add-recipe-btn">
-            <button class="btn btn-primary mb-3" id="addRecipeBtn">
+            <button class="btn btn-primary mb-3 btn-block" id="addRecipeBtn">
               Mis Recetas
             </button>
           </div>
-
-          
 
           <div id="recipeModal" class="modal">
             <div class="modal-content">
@@ -273,9 +303,6 @@
         </div>
       </div>
     </div>
-
-    
-    
 
     <!-- Modal de Iniciar Sesión -->
     <div class="modal" id="loginModal">
