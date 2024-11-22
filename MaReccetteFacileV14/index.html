@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ma Recette Facile</title>
+
+    <link
+      rel="icon"
+      href="http://localhost/tecwebCarlos/actividades/MaReccetteFacileV4/facile.jpeg"
+      type="image/jpeg"
+    />
+
+    <!-- BOOTSTRAP 4  -->
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <style>
+      /* Contenedor principal */
+      .main-container {
+        margin-top: 20px;
+      }
+
+      /* Diseño en mosaico para las recetas */
+      #receta {
+        display: grid;
+        grid-template-columns: repeat(
+          auto-fill,
+          minmax(250px, 1fr)
+        ); /* Tamaño mínimo de las tarjetas */
+        gap: 20px; /* Espacio entre las tarjetas */
+        padding: 20px;
+      }
+
+      /* Para dispositivos móviles */
+      @media (max-width: 767px) {
+        #receta {
+          grid-template-columns: repeat(
+            auto-fill,
+            minmax(150px, 1fr)
+          ); /* Menor tamaño de las tarjetas */
+        }
+      }
+
+      /* Para pantallas muy grandes */
+      @media (min-width: 1200px) {
+        #receta {
+          grid-template-columns: repeat(
+            auto-fill,
+            minmax(300px, 1fr)
+          ); /* Aumentar tamaño de las tarjetas en pantallas grandes */
+        }
+      }
+      /* Tarjeta de receta */
+      .card-recipe {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+        position: relative;
+      }
+
+      /* Efecto hover en las tarjetas */
+      .card-recipe:hover {
+        transform: scale(1.05);
+      }
+
+      /* Imagen dentro de la tarjeta */
+      .card-img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+      }
+      @media (max-width: 767px) {
+        .navbar-nav {
+          text-align: center; /* Centra los elementos de la barra de navegación en dispositivos pequeños */
+        }
+        .navbar-toggler {
+          background-color: #fff; /* Cambia el color del icono del menú en pantallas pequeñas */
+        }
+      }
+
+      /* Contenido dentro de la tarjeta */
+      .card-body {
+        padding: 15px;
+      }
+
+      /* Título de la receta */
+      .card-title {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+
+      /* Texto en la tarjeta */
+      .card-text {
+        font-size: 14px;
+        margin-bottom: 5px;
+      }
+      /* Estilo básico para el modal */
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.4);
+      }
+
+      .modal-content {
+        background-color: #fff;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 50%;
+        justify-content: center;
+        align-items: center;
+      }
+
+      @media (max-width: 767px) {
+        .modal-content {
+          width: 90%; /* Modal más grande en dispositivos pequeños */
+        }
+      }
+      /* Imagen en el modal */
+      .modal-content img {
+        width: 100%; /* Imagen se ajusta al ancho del modal */
+        max-height: 300px; /* Control de altura máxima */
+        object-fit: cover;
+      }
+      .close {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        color: #ff0000;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+
+      .modalNoti {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1050; /* Asegúrate de que sea mayor que el z-index del formulario */
+  }
+
+  .modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    text-align: center;
+    width: 300px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
+  }
+  .close-btn {
+    position: absolute;
+        top: 10px;
+        right: 10px;
+        color: #ff0000;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+  }
+  .modal-actions {
+    margin-top: 20px;
+  }
+
+
+
+    </style>
+  </head>
+
+  <body>
+    <!-- BARRA DE NAVEGACIÓN  -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <a class="navbar-brand" href=".">Ma Reccette Facile</a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ml-auto">
+          <!-- Ícono de usuario -->
+          <li class="nav-item dropdown">
+            <a
+              class="nav-link dropdown-toggle"
+              href="#"
+              id="userMenu"
+              role="button"
+              data-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false"
+            >
+              <img
+                src="https://raw.githubusercontent.com/Javs-27AM/Golden-Mart/master/NetBeans/GoldenMart/src/imagenes/user.png"
+                alt="Ícono de usuario"
+                style="width: 30px; height: 30px"
+              />
+            </a>
+            <div
+              class="dropdown-menu dropdown-menu-right"
+              aria-labelledby="userMenu"
+            >
+              <div id="userMenuItems"></div>
+              <!-- Aquí se llenará con AJAX -->
+              <button
+                class="dropdown-item"
+                id="logoutButton"
+                style="display: none"
+              >
+                Cerrar Sesión
+              </button>
+            </div>
+          </li>
+        </ul>
+        <form class="form-inline my-2 my-lg-0">
+          <input
+            class="form-control mr-sm-2"
+            name="search"
+            id="search"
+            type="search"
+            placeholder="Nombre Receta o Categoría"
+            aria-label="Search"
+          />
+          <button class="btn btn-success my-2 my-sm-0" type="submit">
+            Buscar
+          </button>
+        </form>
+      </div>
+    </nav>
+
+    <!-- Contenido principal -->
+    <div class="container main-container">
+      <div class="row">
+        <!-- Columna de filtros en el lado izquierdo (2 columnas) -->
+        <div class="col-md-3">
+          <div class="card">
+            <div class="card-body">
+              <h5>Filtros</h5>
+              <form id="filters-form">
+                <div class="form-group">
+                  <label for="filter-category">Categoría:</label>
+                  <select
+                    class="form-control"
+                    id="filter-category"
+                    name="filter-category"
+                    required
+                  >
+                    <option value="" disabled selected>Seleccione una categoría</option>
+                    <option value="1">Postre</option>
+                    <option value="2">Plato Principal</option>
+                    <option value="3">Ensalada</option>
+                    <option value="4">Aperitivo</option>
+                    <option value="5">Bebida</option>
+                  </select>
+                </div>
+                
+                <div class="form-group">
+                  <label for="filter-time">Tiempo máximo (minutos):</label>
+                  <input
+                    class="form-control"
+                    type="number"
+                    id="filter-time"
+                    name="filter-time"
+                    placeholder="Ejemplo: 30"
+                    min="1"
+                    required
+                  />
+                </div>
+                
+
+                <button
+                class="btn btn-primary btn-block text-center"
+                  type="submit"
+                  id="apply-filters"
+                >
+                  Aplicar Filtros
+                </button>
+
+                <button
+                  class="btn btn-secondary btn-block"
+                  type="button"
+                  id="reset-filters"
+                >
+                  Quitar Filtros
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Columna principal con el botón de agregar receta y mosaico de recetas -->
+        <div class="col-md-9">
+          <!-- Botón  Receta' -->
+          <div class="add-recipe-btn">
+            <button class="btn btn-primary mb-3 btn-block" id="addRecipeBtn">
+              Mis Recetas
+            </button>
+          </div>
+<!--
+          <div class="fav-btn">
+            <button class="btn btn-primary mb-3 btn-block" id="addRecipeBtn">
+              Mis Favoritos
+            </button>
+          </div>-->
+
+
+          <div id="recipeModal" class="modal">
+            <div class="modal-content">
+              <span class="close">&times;</span>
+              <div id="modalBody">
+                <!-- Aquí se insertarán los detalles de la receta -->
+              </div>
+            </div>
+          </div>
+          <!-- Mosaico de recetas -->
+          <div id="receta"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Iniciar Sesión -->
+    <div class="modal" id="loginModal">
+      <div class="modal-content">
+        <span class="close" id="closeLogin">&times;</span>
+        <h2>Iniciar Sesión</h2>
+        <form id="loginForm">
+          <input
+            type="text"
+            id="loginUsername"
+            placeholder="Nombre de Usuario"
+            required
+          />
+          <br />
+          <br />
+          <input
+            type="password"
+            id="loginPassword"
+            placeholder="Contraseña"
+            required
+          />
+          <br />
+          <br />
+          <button type="submit" class="btn btn-primary btn-block">
+            Entrar
+          </button>
+          <br />
+          <br />
+          <a href="#" id="registerLink" class="register-link">
+            Regístrate aquí si eres nuevo
+          </a>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal para Registro de Usuario -->
+    <div id="registerModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Registro de Usuario</h2>
+        <form id="registerForm">
+          <div class="form-group">
+            <label for="registerUsername">Nombre de Usuario:</label>
+            <input
+              type="text"
+              class="form-control"
+              id="registerUsername"
+              name="username"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="registerPassword">Contraseña:</label>
+            <input
+              type="password"
+              class="form-control"
+              id="registerPassword"
+              name="password"
+              required
+            />
+          </div>
+          <button type="submit" class="btn btn-primary">Registrarse</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Formulario de Registro -->
+    <div id="registerForm" style="display: none">
+      <h3>Crear Cuenta</h3>
+      <input
+        type="text"
+        id="registerUser"
+        placeholder="Nombre de usuario"
+        required
+      />
+      <input
+        type="password"
+        id="registerPass"
+        placeholder="Contraseña"
+        required
+      />
+      <button onclick="registerUser()">Registrarse</button>
+    </div>
+
+    <!-- Formulario de Login -->
+    <div id="loginForm" style="display: none">
+      <h3>Iniciar Sesión</h3>
+      <input
+        type="text"
+        id="loginUser"
+        placeholder="Nombre de usuario"
+        required
+      />
+      <br />
+      <input type="password" id="loginPass" placeholder="Contraseña" required />
+      <button onclick="loginUser()">Ingresar</button>
+    </div>
+
+    <!-- Modal General -->
+<div id="generalModal" class="modalNoti" style="display: none;">
+  <div class="modal-content">
+    <span class="close-btn" id="closeModal">&times;</span>
+    <p id="modalMessage"></p>
+    <div class="modal-actions">
+        <button id="modalConfirmBtn" class="btn btn-primary btn-block" style="display: none;">Aceptar</button>
+      <button id="modalCancelBtn" class="btn btn-secondary btn-block" style="display: none;">Cancelar</button>
+    
+    </div>
+  </div>
+</div>
+
+    <script>
+      document
+        .getElementById("registerLink")
+        .addEventListener("click", function () {
+          document.getElementById("loginModal").style.display = "none";
+          document.getElementById("registerModal").style.display = "block";
+        });
+
+      document.querySelectorAll(".close").forEach(function (element) {
+        element.addEventListener("click", function () {
+          element.closest(".modal").style.display = "none";
+        });
+      });
+    </script>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  </body>
+</html>
